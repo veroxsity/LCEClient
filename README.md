@@ -10,6 +10,8 @@ This project contains the source code of Minecraft Legacy Console Edition v1.3.0
 
 - Fixed compilation and execution in both Debug and Release mode on Windows using Visual Studio 2022
 - Added support for keyboard and mouse input
+- Added fullscreen mode support (toggle using F11)
+- Disabled V-Sync for better performance
 
 ## Build & Run
 
