@@ -4,7 +4,12 @@
 
 ## Introduction
 
-This project contains the source code of Minecraft Legacy Console Edition v1.3.0494.0, with some fixes applied to allow compilation and execution in Debug and Release mode on Windows using Visual Studio 2022.
+This project contains the source code of Minecraft Legacy Console Edition v1.3.0494.0, with some fixes and improvements applied.
+
+## Features
+
+- Fixed compilation and execution in both Debug and Release mode on Windows using Visual Studio 2022
+- Added support for keyboard and mouse input
 
 ## Build & Run
 
@@ -14,18 +19,8 @@ This project contains the source code of Minecraft Legacy Console Edition v1.3.0
 4. Make sure `Minecraft.Client` is set as the Startup Project
 5. Set the build configuration to **Debug** or **Release** and the target platform to **Windows64**, then build and run
 
-## Playing
-
-Since Minecraft Legacy Console Edition does not natively support keyboard and mouse input, you will need to use a gamepad to play, or use a virtual gamepad emulator such as [QKeyMapper](https://github.com/Zalafina/QKeyMapper).
-
 ## Known Issues
 
-1. Builds for other platforms have not been tested and are most likely non-functional.
-2. Sound effects are missing.
-3. Other unknown issues may exist.
-
-## Goals
-
-- [ ] Native keyboard and mouse input support
-- [x] Fix compilation in Release mode on Windows
-- [ ] Fix builds and execution on non-Windows platforms
+- Builds for other platforms have not been tested and are most likely non-functional
+- Sound effects are missing
+- Other unknown issues may exist
