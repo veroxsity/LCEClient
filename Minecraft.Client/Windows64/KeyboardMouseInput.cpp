@@ -7,11 +7,8 @@
 KeyboardMouseInput KMInput;
 
 KeyboardMouseInput::KeyboardMouseInput()
-	: m_mouseDeltaX(0.0f)
-	, m_mouseDeltaY(0.0f)
-	, m_mouseDeltaXAccum(0.0f)
+	: m_mouseDeltaXAccum(0.0f)
 	, m_mouseDeltaYAccum(0.0f)
-	, m_scrollDelta(0)
 	, m_scrollDeltaAccum(0)
 	, m_captured(false)
 	, m_hWnd(NULL)
@@ -21,6 +18,8 @@ KeyboardMouseInput::KeyboardMouseInput()
 	memset(m_keyStatePrev, 0, sizeof(m_keyStatePrev));
 	memset(m_mouseButtons, 0, sizeof(m_mouseButtons));
 	memset(m_mouseButtonsPrev, 0, sizeof(m_mouseButtonsPrev));
+	memset(m_keyPressedAccum, 0, sizeof(m_keyPressedAccum));
+	memset(m_mousePressedAccum, 0, sizeof(m_mousePressedAccum));
 }
 
 KeyboardMouseInput::~KeyboardMouseInput()
@@ -47,16 +46,6 @@ void KeyboardMouseInput::Init(HWND hWnd)
 
 void KeyboardMouseInput::Tick()
 {
-	// Snapshot accumulated mouse deltas
-	m_mouseDeltaX = m_mouseDeltaXAccum;
-	m_mouseDeltaY = m_mouseDeltaYAccum;
-	m_mouseDeltaXAccum = 0.0f;
-	m_mouseDeltaYAccum = 0.0f;
-
-	// Snapshot scroll delta
-	m_scrollDelta = m_scrollDeltaAccum;
-	m_scrollDeltaAccum = 0;
-
 	// Keep cursor pinned to center while captured
 	if (m_captured)
 		CenterCursor();
@@ -65,7 +54,7 @@ void KeyboardMouseInput::Tick()
 void KeyboardMouseInput::EndFrame()
 {
 	// Advance previous state for next frame's edge detection.
-	// Must be called AFTER all consumers have read IsKeyPressed/Released etc.
+	// Must be called AFTER all per-frame consumers have read IsKeyPressed/Released etc.
 	memcpy(m_keyStatePrev, m_keyState, sizeof(m_keyState));
 	memcpy(m_mouseButtonsPrev, m_mouseButtons, sizeof(m_mouseButtons));
 }
@@ -74,6 +63,7 @@ void KeyboardMouseInput::OnKeyDown(WPARAM vk)
 {
 	if (vk < 256)
 	{
+		if (!m_keyState[vk]) m_keyPressedAccum[vk] = true;
 		m_keyState[vk] = true;
 	}
 }
@@ -112,6 +102,7 @@ void KeyboardMouseInput::OnMouseButton(int button, bool down)
 {
 	if (button >= 0 && button < 3)
 	{
+		if (down && !m_mouseButtons[button]) m_mousePressedAccum[button] = true;
 		m_mouseButtons[button] = down;
 	}
 }
@@ -125,12 +116,14 @@ void KeyboardMouseInput::ClearAllState()
 {
 	memset(m_keyState, 0, sizeof(m_keyState));
 	memset(m_mouseButtons, 0, sizeof(m_mouseButtons));
+	memset(m_keyPressedAccum, 0, sizeof(m_keyPressedAccum));
+	memset(m_mousePressedAccum, 0, sizeof(m_mousePressedAccum));
 	m_mouseDeltaXAccum = 0.0f;
 	m_mouseDeltaYAccum = 0.0f;
 	m_scrollDeltaAccum = 0;
 }
 
-// Key queries
+// Per-frame key queries
 bool KeyboardMouseInput::IsKeyDown(int vk) const
 {
 	if (vk < 0 || vk >= 256) return false;
@@ -149,7 +142,7 @@ bool KeyboardMouseInput::IsKeyReleased(int vk) const
 	return !m_keyState[vk] && m_keyStatePrev[vk];
 }
 
-// Mouse button queries
+// Per-frame mouse button queries
 bool KeyboardMouseInput::IsMouseDown(int btn) const
 {
 	if (btn < 0 || btn >= 3) return false;
@@ -168,10 +161,37 @@ bool KeyboardMouseInput::IsMouseReleased(int btn) const
 	return !m_mouseButtons[btn] && m_mouseButtonsPrev[btn];
 }
 
-// Delta queries
-float KeyboardMouseInput::GetMouseDeltaX() const { return m_mouseDeltaX; }
-float KeyboardMouseInput::GetMouseDeltaY() const { return m_mouseDeltaY; }
-int KeyboardMouseInput::GetScrollDelta() const { return m_scrollDelta; }
+// Game-tick consume methods
+bool KeyboardMouseInput::ConsumeKeyPress(int vk)
+{
+	if (vk < 0 || vk >= 256) return false;
+	bool pressed = m_keyPressedAccum[vk];
+	m_keyPressedAccum[vk] = false;
+	return pressed;
+}
+
+bool KeyboardMouseInput::ConsumeMousePress(int btn)
+{
+	if (btn < 0 || btn >= 3) return false;
+	bool pressed = m_mousePressedAccum[btn];
+	m_mousePressedAccum[btn] = false;
+	return pressed;
+}
+
+void KeyboardMouseInput::ConsumeMouseDelta(float &dx, float &dy)
+{
+	dx = m_mouseDeltaXAccum;
+	dy = m_mouseDeltaYAccum;
+	m_mouseDeltaXAccum = 0.0f;
+	m_mouseDeltaYAccum = 0.0f;
+}
+
+int KeyboardMouseInput::ConsumeScrollDelta()
+{
+	int delta = m_scrollDeltaAccum;
+	m_scrollDeltaAccum = 0;
+	return delta;
+}
 
 // Mouse capture
 void KeyboardMouseInput::SetCapture(bool capture)

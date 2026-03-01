@@ -1456,11 +1456,11 @@ void Minecraft::run_middle()
 					// Keyboard/mouse button presses for player 0
 					if (i == 0)
 					{
-						if (KMInput.IsKeyPressed(VK_ESCAPE))  localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_PAUSEMENU;
-						if (KMInput.IsKeyPressed('E'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_INVENTORY;
-						if (KMInput.IsKeyPressed('Q'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_DROP;
-						if (KMInput.IsKeyPressed('C'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_CRAFTING;
-						if (KMInput.IsKeyPressed(VK_F5))       localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_RENDER_THIRD_PERSON;
+						if (KMInput.ConsumeKeyPress(VK_ESCAPE))  localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_PAUSEMENU;
+						if (KMInput.ConsumeKeyPress('E'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_INVENTORY;
+						if (KMInput.ConsumeKeyPress('Q'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_DROP;
+						if (KMInput.ConsumeKeyPress('C'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_CRAFTING;
+						if (KMInput.ConsumeKeyPress(VK_F5))       localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_RENDER_THIRD_PERSON;
 						// In flying mode, Shift held = sneak/descend
 						if (localplayers[i]->abilities.flying && KMInput.IsKeyDown(VK_SHIFT))
 							localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_SNEAK_TOGGLE;
@@ -3197,7 +3197,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		// Mouse scroll wheel for hotbar
 		if (iPad == 0)
 		{
-			int kbWheel = KMInput.GetScrollDelta();
+			int kbWheel = KMInput.ConsumeScrollDelta();
 			if (kbWheel > 0 && gameMode->isInputAllowed(MINECRAFT_ACTION_LEFT_SCROLL)) wheel += 1;
 			else if (kbWheel < 0 && gameMode->isInputAllowed(MINECRAFT_ACTION_RIGHT_SCROLL)) wheel -= 1;
 
@@ -3206,7 +3206,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 			{
 				for (int k = '1'; k <= '9'; k++)
 				{
-					if (KMInput.IsKeyPressed(k))
+					if (KMInput.ConsumeKeyPress(k))
 					{
 						player->inventory->selected = k - '1';
 						app.SetOpacityTimer(iPad);
@@ -3248,7 +3248,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 				player->lastClickTick[0] = ticks;
 			}
 #ifdef _WINDOWS64
-			else if (iPad == 0 && KMInput.IsCaptured() && KMInput.IsMousePressed(0))
+			else if (iPad == 0 && KMInput.IsCaptured() && KMInput.ConsumeMousePress(0))
 			{
 				player->handleMouseClick(0);
 				player->lastClickTick[0] = ticks;

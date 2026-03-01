@@ -30,20 +30,20 @@ public:
 	void OnMouseWheel(int delta);
 	void ClearAllState();
 
-	// Key state queries (call after Tick)
+	// Per-frame edge detection (for UI / per-frame logic like Alt toggle)
 	bool IsKeyDown(int vk) const;
 	bool IsKeyPressed(int vk) const;
 	bool IsKeyReleased(int vk) const;
-
-	// Mouse button queries: 0=left, 1=right, 2=middle
 	bool IsMouseDown(int btn) const;
 	bool IsMousePressed(int btn) const;
 	bool IsMouseReleased(int btn) const;
 
-	// Mouse deltas (consumed each Tick)
-	float GetMouseDeltaX() const;
-	float GetMouseDeltaY() const;
-	int GetScrollDelta() const;
+	// Game-tick consume methods: accumulate across frames, clear on read.
+	// Use these from code that runs at game tick rate (20Hz).
+	bool ConsumeKeyPress(int vk);
+	bool ConsumeMousePress(int btn);
+	void ConsumeMouseDelta(float &dx, float &dy);
+	int ConsumeScrollDelta();
 
 	// Mouse capture for FPS look
 	void SetCapture(bool capture);
@@ -52,18 +52,21 @@ public:
 private:
 	void CenterCursor();
 
+	// Per-frame double-buffered state (for IsKeyPressed/Released per-frame edge detection)
 	bool m_keyState[256];
 	bool m_keyStatePrev[256];
-
 	bool m_mouseButtons[3];
 	bool m_mouseButtonsPrev[3];
 
-	float m_mouseDeltaX;
-	float m_mouseDeltaY;
+	// Sticky press accumulators (persist until consumed by game tick)
+	bool m_keyPressedAccum[256];
+	bool m_mousePressedAccum[3];
+
+	// Mouse delta accumulators (persist until consumed by game tick)
 	float m_mouseDeltaXAccum;
 	float m_mouseDeltaYAccum;
 
-	int m_scrollDelta;
+	// Scroll accumulator (persists until consumed by game tick)
 	int m_scrollDeltaAccum;
 
 	bool m_captured;

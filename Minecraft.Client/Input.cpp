@@ -131,9 +131,11 @@ void Input::tick(LocalPlayer *player)
 	// Mouse look (added after stick-based turn)
 	if (iPad == 0 && KMInput.IsCaptured())
 	{
-		float mouseSensitivity = 1.25f;
-		float mdx = KMInput.GetMouseDeltaX() * mouseSensitivity;
-		float mdy = -KMInput.GetMouseDeltaY() * mouseSensitivity;
+		float mouseSensitivity = 0.5f;
+		float rawDx, rawDy;
+		KMInput.ConsumeMouseDelta(rawDx, rawDy);
+		float mdx = rawDx * mouseSensitivity;
+		float mdy = -rawDy * mouseSensitivity;
 		if (app.GetGameSettings(iPad, eGameSetting_ControlInvertLook))
 			mdy = -mdy;
 		player->interpolateTurn(mdx, mdy);
