@@ -4,12 +4,20 @@ on:
   workflow_dispatch: 
   push:
     branches:
-    - 'main'
-    paths-ignore:
-      - '.gitignore'
-      - '*.md'
-      - '.github/**'
-      - '!.github/workflows/nightly.yml'
+      - 'main'
+    paths:
+      - '.github/workflows/nightly.yml'
+      - 'Minecraft.Client/**'
+      - 'Minecraft.World/**'
+      - 'include/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'MinecraftConsoles.sln'
+      - '**/*.vcxproj'
+      - '**/*.vcxproj.filters'
+      - '**/*.props'
+      - '**/*.targets'
 
 permissions:
   contents: write
