@@ -15,6 +15,61 @@
 #include "../../Linux64/Linux64_UIController.h"
 #endif
 
+inline std::wstring UIRegionNameToWString(const IggyUTF16 *name)
+{
+	std::wstring out;
+	if (name == nullptr)
+	{
+		return out;
+	}
+
+	for (const IggyUTF16 *p = name; *p != 0; ++p)
+	{
+		out += static_cast<wchar_t>(*p);
+	}
+
+	return out;
+}
+
+inline bool UIRegionNameEquals(const IggyUTF16 *name, const wchar_t *expected)
+{
+	if (name == nullptr || expected == nullptr)
+	{
+		return false;
+	}
+
+#ifdef _LINUX64
+	return UIRegionNameToWString(name) == expected;
+#else
+	return wcscmp(reinterpret_cast<const wchar_t *>(name), expected) == 0;
+#endif
+}
+
+inline int UIParseRegionIndex(const IggyUTF16 *name, const wchar_t *format, int defaultValue = -1)
+{
+	if (name == nullptr || format == nullptr)
+	{
+		return defaultValue;
+	}
+
+	int value = defaultValue;
+
+#ifdef _LINUX64
+	const std::wstring regionName = UIRegionNameToWString(name);
+	if (swscanf(regionName.c_str(), format, &value) != 1)
+	{
+		return defaultValue;
+	}
+#else
+	if (swscanf(reinterpret_cast<const wchar_t *>(name), format, &value) != 1)
+	{
+		return defaultValue;
+	}
+#endif
+
+	return value;
+}
+
 #include "UIControl.h"
 #include "UIControl_Base.h"
 #include "UIControl_Button.h"

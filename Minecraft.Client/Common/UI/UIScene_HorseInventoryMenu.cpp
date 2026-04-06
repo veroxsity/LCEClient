@@ -298,7 +298,7 @@ void UIScene_HorseInventoryMenu::customDraw(IggyCustomDrawCallbackRegion *region
 	Minecraft *pMinecraft = Minecraft::GetInstance();
 	if(pMinecraft->localplayers[m_iPad] == nullptr || pMinecraft->localgameModes[m_iPad] == nullptr) return;
 
-	if(wcscmp((wchar_t *)region->name,L"horse")==0)
+	if(UIRegionNameEquals(region->name, L"horse"))
 	{
 		// Setup GDraw, normal game render states and matrices
 		CustomDrawData *customDrawRegion = ui.setupCustomDraw(this,region);

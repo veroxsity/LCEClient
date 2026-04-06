@@ -452,7 +452,7 @@ void UIScene_MainMenu::RunAction(int iPad)
 
 void UIScene_MainMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 {
-	if(wcscmp((wchar_t *)region->name,L"Splash")==0)
+	if(UIRegionNameEquals(region->name, L"Splash"))
 	{
 		PIXBeginNamedEvent(0,"Custom draw splash");
 		customDrawSplash(region);

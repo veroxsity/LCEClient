@@ -250,7 +250,7 @@ void UIScene_EnchantingMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 	if(pMinecraft->localplayers[m_iPad] == nullptr || pMinecraft->localgameModes[m_iPad] == nullptr) return;
 	
 
-	if(wcscmp((wchar_t *)region->name,L"EnchantmentBook")==0)
+	if(UIRegionNameEquals(region->name, L"EnchantmentBook"))
 	{
 		// Setup GDraw, normal game render states and matrices
 		CustomDrawData *customDrawRegion = ui.setupCustomDraw(this,region);
@@ -264,7 +264,7 @@ void UIScene_EnchantingMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 	else
 	{
 		int slotId = -1;
-		swscanf(static_cast<wchar_t *>(region->name),L"slot_Button%d",&slotId);
+		slotId = UIParseRegionIndex(region->name, L"slot_Button%d");
 		if(slotId >= 0)
 		{
 			// Setup GDraw, normal game render states and matrices

@@ -285,14 +285,14 @@ void UIScene_AbstractContainerMenu::customDraw(IggyCustomDrawCallbackRegion *reg
 
 	shared_ptr<ItemInstance> item = nullptr;
 	int slotId = -1;
-	if(wcscmp((wchar_t *)region->name,L"pointerIcon")==0)
+	if(UIRegionNameEquals(region->name, L"pointerIcon"))
 	{		
 		m_cacheSlotRenders = false;
 		item = pMinecraft->localplayers[m_iPad]->inventory->getCarried();
 	}
 	else
 	{
-		swscanf(static_cast<wchar_t *>(region->name),L"slot_%d",&slotId);
+		slotId = UIParseRegionIndex(region->name, L"slot_%d");
 		if (slotId == -1)
 		{
 			app.DebugPrintf("This is not the control we are looking for\n");

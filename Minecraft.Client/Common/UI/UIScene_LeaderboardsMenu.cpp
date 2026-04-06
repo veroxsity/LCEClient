@@ -964,7 +964,7 @@ int UIScene_LeaderboardsMenu::SetLeaderboardTitleIcons()
 void UIScene_LeaderboardsMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 {
 	int slotId = -1;
-	swscanf(static_cast<wchar_t *>(region->name),L"slot_%d",&slotId);
+	slotId = UIParseRegionIndex(region->name, L"slot_%d");
 	if (slotId == -1)
 	{
 		//app.DebugPrintf("This is not the control we are looking for\n");

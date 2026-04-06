@@ -599,7 +599,7 @@ void UIScene_SkinSelectMenu::InputActionOK(unsigned int iPad)
 void UIScene_SkinSelectMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 {
 	int characterId = -1;
-	swscanf(static_cast<wchar_t *>(region->name),L"Character%d",&characterId);
+	characterId = UIParseRegionIndex(region->name, L"Character%d");
 	if (characterId == -1)
 	{
 		app.DebugPrintf("Invalid character to render found\n");

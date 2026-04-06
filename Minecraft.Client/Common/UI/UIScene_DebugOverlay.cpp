@@ -142,7 +142,7 @@ void UIScene_DebugOverlay::customDraw(IggyCustomDrawCallbackRegion *region)
 	if(pMinecraft->localplayers[m_iPad] == nullptr || pMinecraft->localgameModes[m_iPad] == nullptr) return;
 
 	int itemId = -1;
-	swscanf(static_cast<wchar_t *>(region->name),L"item_%d",&itemId);
+	itemId = UIParseRegionIndex(region->name, L"item_%d");
 	if (itemId == -1 || itemId > Item::ITEM_NUM_COUNT || Item::items[itemId] == nullptr)
 	{
 		app.DebugPrintf("This is not the control we are looking for\n");

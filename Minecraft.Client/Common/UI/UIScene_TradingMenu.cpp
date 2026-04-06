@@ -159,7 +159,7 @@ void UIScene_TradingMenu::customDraw(IggyCustomDrawCallbackRegion *region)
 
 	shared_ptr<ItemInstance> item = nullptr;
 	int slotId = -1;
-	swscanf(static_cast<wchar_t *>(region->name),L"slot_%d",&slotId);
+	slotId = UIParseRegionIndex(region->name, L"slot_%d");
 
 	if(slotId < MerchantMenu::USE_ROW_SLOT_END)
 	{			
