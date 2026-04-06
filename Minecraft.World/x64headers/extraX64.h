@@ -98,6 +98,15 @@ typedef struct _XUIDC* HXUIDC;
 
 bool IsEqualXUID(PlayerUID a, PlayerUID b);
 
+inline std::wstring PlayerUIDToString(const PlayerUID& xuid)
+{
+#if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__) || defined(_DURANGO)
+    return xuid.toString();
+#else
+    return std::to_wstring(static_cast<unsigned long long>(xuid));
+#endif
+}
+
 using namespace std;
 
 // Temporary implementation of lock free stack with quite a bit more locking than you might expect

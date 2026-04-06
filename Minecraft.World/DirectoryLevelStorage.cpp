@@ -284,11 +284,7 @@ LevelData *DirectoryLevelStorage::prepareLevel()
 			for(unsigned int i = 0; i < count; ++i)
 			{
 				PlayerUID playerUid = dis.readPlayerUID();
-#ifdef _WINDOWS64
-				app.DebugPrintf("  -- %d\n", playerUid);
-#else
-				app.DebugPrintf("  -- %ls\n", playerUid.toString().c_str());
-#endif
+				app.DebugPrintf("  -- %ls\n", PlayerUIDToString(playerUid).c_str());
 				m_playerMappings[playerUid].readMappings(&dis);
 			}
 			dis.readFully(m_usedMappings);
@@ -396,9 +392,9 @@ void DirectoryLevelStorage::save(shared_ptr<Player> player)
 #if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__)
 		ConsoleSavePath realFile = ConsoleSavePath( m_saveFile->getPlayerDataFilenameForSave(playerXuid).c_str() );
 #elif defined(_DURANGO)
-		ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + player->getXuid().toString() + L".dat" );
+		ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + PlayerUIDToString(player->getXuid()) + L".dat" );
 #else
-		const ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + std::to_wstring( player->getXuid() ) + L".dat" );
+		const ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + PlayerUIDToString(player->getXuid()) + L".dat" );
 #endif
 		// If saves are disabled (e.g. because we are writing the save buffer to disk) then cache this player data
 		if(StorageManager.GetSaveDisabled())
@@ -445,9 +441,9 @@ CompoundTag *DirectoryLevelStorage::loadPlayerDataTag(PlayerUID xuid)
 #if defined(__PS3__) || defined(__ORBIS__) || defined(__PSVITA__)
 	ConsoleSavePath realFile = ConsoleSavePath( m_saveFile->getPlayerDataFilenameForLoad(xuid).c_str() );
 #elif defined(_DURANGO)
-	ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + xuid.toString() + L".dat" );
+	ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + PlayerUIDToString(xuid) + L".dat" );
 #else
-	const ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + std::to_wstring( xuid ) + L".dat" );
+	const ConsoleSavePath realFile = ConsoleSavePath( playerDir.getName() + PlayerUIDToString(xuid) + L".dat" );
 #endif
 	const auto it = m_cachedSaveData.find(realFile.getName());
 	if(it != m_cachedSaveData.end() )
@@ -684,11 +680,7 @@ void DirectoryLevelStorage::saveMapIdLookup()
 		app.DebugPrintf("Saving %d mappings\n", m_playerMappings.size());
 		for ( auto& it : m_playerMappings )
 		{
-#ifdef _WINDOWS64
-			app.DebugPrintf("  -- %d\n", it.first);
-#else
-			app.DebugPrintf("  -- %ls\n", it.first.toString().c_str());
-#endif
+			app.DebugPrintf("  -- %ls\n", PlayerUIDToString(it.first).c_str());
 			dos.writePlayerUID(it.first);
 			it.second.writeMappings(&dos);
 		}

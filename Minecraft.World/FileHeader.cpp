@@ -472,7 +472,7 @@ wstring FileHeader::getPlayerDataFilenameForSave(const PlayerUID& pUID)
 	}
 
 	// we're either online, or we can't find a previous save, so use the standard filename
-	wstring retVal = pUID.toString() + L".dat";
+	wstring retVal = PlayerUIDToString(pUID) + L".dat";
 	return retVal;
 }
 
