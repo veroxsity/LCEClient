@@ -1422,7 +1422,7 @@ void GameRenderer::renderLevel(float a, int64_t until)
 
 		if (mc->options->ambientOcclusion)
 		{
-			GL11::glShadeModel(GL11::GL_SMOOTH);
+			glShadeModel(GL_SMOOTH);
 		}
 
 		PIXBeginNamedEvent(0,"Culling");
@@ -1476,7 +1476,7 @@ void GameRenderer::renderLevel(float a, int64_t until)
 		levelRenderer->render(cameraEntity, 0, a, updateChunks);
 		PIXEndNamedEvent();
 
-		GL11::glShadeModel(GL11::GL_FLAT);
+		GL11::glShadeModel(GL_FLAT);
 
 		if (cameraFlip == 0 )
 		{
@@ -1533,7 +1533,7 @@ void GameRenderer::renderLevel(float a, int64_t until)
 		{
 			if (mc->options->ambientOcclusion)
 			{
-				GL11::glShadeModel(GL11::GL_SMOOTH);
+				glShadeModel(GL_SMOOTH);
 			}
 
 			glBlendFunc(GL_ZERO, GL_ONE);
@@ -1549,7 +1549,7 @@ void GameRenderer::renderLevel(float a, int64_t until)
 				PIXEndNamedEvent();
 			}
 
-			GL11::glShadeModel(GL11::GL_FLAT);
+			GL11::glShadeModel(GL_FLAT);
 		}
 		else
 		{
