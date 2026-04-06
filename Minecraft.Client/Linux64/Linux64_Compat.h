@@ -26,6 +26,9 @@ typedef unsigned int        DWORD;
 typedef unsigned int        UINT;
 typedef int                 INT;
 typedef long                LONG;
+typedef char                CHAR;
+typedef void                VOID;
+#define CONST const
 typedef unsigned long       ULONG;
 typedef long long           LONGLONG;
 typedef unsigned long long  ULONGLONG;
