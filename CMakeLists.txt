@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(NOT WIN32)
-  message(FATAL_ERROR "This CMake build currently supports Windows only.")
+if(NOT WIN32 AND NOT (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+  message(FATAL_ERROR "Unsupported platform. Only Windows and Linux are supported.")
 endif()
 
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -78,7 +78,7 @@ list(APPEND MINECRAFT_SHARED_DEFINES ${PLATFORM_DEFINES})
 # ---
 add_subdirectory(Minecraft.World)
 add_subdirectory(Minecraft.Client)
-if(PLATFORM_NAME STREQUAL "Windows64") # Server is only supported on Windows for now
+if(PLATFORM_NAME STREQUAL "Windows64" OR PLATFORM_NAME STREQUAL "Linux64") # Server supported on Windows and Linux
   add_subdirectory(Minecraft.Server)
 endif()
 
@@ -98,7 +98,7 @@ add_custom_target(GenerateBuildVer
 
 add_dependencies(Minecraft.World GenerateBuildVer)
 add_dependencies(Minecraft.Client GenerateBuildVer)
-if(PLATFORM_NAME STREQUAL "Windows64")
+if(PLATFORM_NAME STREQUAL "Windows64" OR PLATFORM_NAME STREQUAL "Linux64")
   add_dependencies(Minecraft.Server GenerateBuildVer)
 endif()
 

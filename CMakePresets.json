@@ -8,6 +8,16 @@
       "hidden": true
     },
     {
+      "name": "linux64",
+      "displayName": "Linux64",
+      "inherits": "base",
+      "cacheVariables": {
+        "PLATFORM_DEFINES": "_LINUX64",
+        "PLATFORM_NAME": "Linux64",
+        "IGGY_LIBS": ""
+      }
+    },
+    {
       "name": "windows64",
       "displayName": "Windows64",
       "inherits": "base",
@@ -73,6 +83,9 @@
     }
   ],
   "buildPresets": [
+    { "name": "linux64-debug",   "displayName": "Linux64 - Debug",   "configurePreset": "linux64", "configuration": "Debug" },
+    { "name": "linux64-release", "displayName": "Linux64 - Release", "configurePreset": "linux64", "configuration": "Release" },
+
     { "name": "windows64-debug",   "displayName": "Windows64 - Debug",   "configurePreset": "windows64", "configuration": "Debug" },
     { "name": "windows64-release", "displayName": "Windows64 - Release", "configurePreset": "windows64", "configuration": "Release" },
 

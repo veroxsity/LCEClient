@@ -35,6 +35,22 @@ using namespace DirectX;
 
 #define HRESULT_SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
 
+#elif defined(_LINUX64)
+// Linux64 port — Win32 type shims, must come before everything else
+#include "Linux64/Linux64_Compat.h"
+#include <string>
+#include <vector>
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+#include <functional>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
+
 #endif
 
 #ifdef __PS3__
@@ -178,6 +194,12 @@ typedef XUID GameSessionUID;
 	#include "Windows64\4JLibs\inc\4J_Render.h"
 	#include "Windows64\4JLibs\inc\4J_Storage.h"
 	#include "Windows64\KeyboardMouseInput.h"
+#elif defined _LINUX64
+	#include "Linux64/4JLibs/inc/4J_Input.h"
+	#include "Linux64/4JLibs/inc/4J_Profile.h"
+	#include "Linux64/4JLibs/inc/4J_Render.h"
+	#include "Linux64/4JLibs/inc/4J_Storage.h"
+	#include "Linux64/KeyboardMouseInput.h"
 #elif defined __PSVITA__
 	#include "PSVita\4JLibs\inc\4J_Input.h"
 	#include "PSVita\4JLibs\inc\4J_Profile.h"
@@ -279,6 +301,10 @@ typedef XUID GameSessionUID;
 	#include "Windows64\Iggy\include\iggy.h"
 	#include "Windows64\Iggy\gdraw\gdraw_d3d11.h"
 	#include "Windows64\Windows64_UIController.h"
+#elif defined _LINUX64
+	#include "Linux64/Iggy/include/iggy_stub.h"
+	#include "Common/Audio/SoundEngine.h"
+	#include "Linux64/Linux64_App.h"
 #elif defined __PSVITA__
 	#include "PSVita\PSVita_App.h"
 	#include "PSVitaMedia\strings.h"		// TODO - create PSVita-specific version of this
