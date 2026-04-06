@@ -90,10 +90,12 @@ typedef int64_t             INT64;
 typedef uint64_t            UINT64;
 typedef uint32_t            UINT32;
 typedef int32_t             INT32;
+#if !defined(__clang__)
 typedef int32_t             __int32;
 typedef uint32_t            __uint32;
 typedef int64_t             __int64;
 typedef uint64_t            __uint64;
+#endif
 typedef FILETIME*           PFILETIME;
 typedef FILETIME*           LPFILETIME;
 typedef struct _SYSTEMTIME {
