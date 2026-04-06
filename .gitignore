@@ -414,3 +414,6 @@ build/
 tmp*/
 _server_asset_probe/
 server-data/
+
+# Local working notes (not committed)
+.local/
