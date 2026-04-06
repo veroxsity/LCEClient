@@ -2,6 +2,18 @@
 
 #include "../../Common/UI/UIEnums.h"
 
+// On Linux64 the Sentient SDK is not available; stub its enum types as int
+#ifdef _LINUX64
+typedef int ESen_FriendOrMatch;
+typedef int ESen_CompeteOrCoop;
+typedef int ESen_LevelExitStatus;
+typedef int ESen_MediaDestination;
+typedef int ESen_MediaType;
+typedef int ESen_UpsellID;
+typedef int ESen_UpsellOutcome;
+typedef int ETelemetryChallenges;
+#endif
+
 class CTelemetryManager
 {
 public:
