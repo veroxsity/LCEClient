@@ -228,9 +228,13 @@ void PreStitchedTextureMap::makeTextureAnimated(TexturePack *texturePack, Stitch
 		{
 			app.DebugPrintf("%ls - first w - %d, h - %d, tex w - %d, h - %d\n",textureFileName.c_str(),first->getWidth(),tex->getWidth(),first->getHeight(),tex->getHeight());
 			//__debugbreak();
-			return; // Skip animated texture if dimensions mismatch (Phase 2 stub safety)
 		}
 #endif
+		// Guard: skip animated texture if frame dimensions don't match stitched slot
+		if(first->getWidth() != tex->getWidth() || first->getHeight() != tex->getHeight())
+		{
+			return;
+		}
 
 		tex->init(stitchResult, frames, tex->getX(), tex->getY(), first->getWidth(), first->getHeight(), false);
 
