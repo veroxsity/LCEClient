@@ -1149,7 +1149,9 @@ inline BOOL FindClose(HANDLE handle) { return CloseHandle(handle); }
 
 #define SetProcessDPIAware()      ((void)0)
 #define GetProcAddress(mod, name) ((void*)nullptr)
+#define GetModuleHandle(name)     ((HMODULE)nullptr)
 #define GetModuleHandleA(name)    ((HMODULE)nullptr)
+#define GetModuleHandleW(name)    ((HMODULE)nullptr)
 
 // --------------- D3D forward decls (headers reference these) ---------------
 struct ID3D11Device;
