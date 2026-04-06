@@ -38,6 +38,8 @@ using namespace DirectX;
 #elif defined(_LINUX64)
 // Linux64 port — Win32 type shims, must come before everything else
 #include "Linux64/Linux64_Compat.h"
+// GLEW provides real GL function declarations (must come before any GL usage)
+#include <GL/glew.h>
 #include <string>
 #include <vector>
 #include <memory>

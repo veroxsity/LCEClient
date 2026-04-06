@@ -12,17 +12,11 @@ const int GL_NORMAL_ARRAY = 0;
 const int GL_TEXTURE_COORD_ARRAY = 0;
 
 const int GL_COMPILE = 0;
-
 const int GL_NORMALIZE = 0;
-
 const int GL_RESCALE_NORMAL = 0;
-
-
 
 const int GL_SMOOTH = 0;
 const int GL_FLAT = 0;
-
-
 
 const int GL_RGBA = 0;
 const int GL_BGRA = 1;
@@ -39,13 +33,15 @@ const int GL_BACK = 1;
 const int GL_FRONT_AND_BACK = 2;
 
 const int GL_COLOR_MATERIAL = 0;
-
 const int GL_AMBIENT_AND_DIFFUSE = 0;
 
 const int GL_TEXTURE1 = 0;
 const int GL_TEXTURE0 = 1;
 
-// GL function stubs — only on non-Linux (on Linux64 GLEW provides real declarations)
+// On Linux64, GLEW (included via stdafx.h) provides all real GL function declarations.
+// We only need the project-specific wrappers that take FloatBuffer*/ByteBuffer*/IntBuffer*.
+// On Windows/other, we stub everything since there's no real GL.
+
 #ifndef _LINUX64
 
 void glFlush();
@@ -117,58 +113,52 @@ void glFogf(int,float);
 void glFog(int,FloatBuffer *);
 void glColorMaterial(int,int);
 void glMultiTexCoord2f(int, float, float);
-
-//1.8.2
 void glClientActiveTexture(int);
 void glActiveTexture(int);
 
-#else // _LINUX64 — project-specific GL wrappers that aren't real GL functions
+#else // _LINUX64: GLEW provides real GL functions. Only declare project wrappers.
 
-// These take FloatBuffer*/ByteBuffer*/IntBuffer* which are project types,
-// not conflicts with GLEW — declare them on Linux too.
 void glTexGeni(int,int,int);
 void glTexGen(int,int,FloatBuffer *);
-void glReadPixels(int,int, int, int, int, int, ByteBuffer *);
+void glReadPixels(int,int,int,int,int,int,ByteBuffer *);
 void glGenTextures(IntBuffer *);
 int glGenTextures();
-void glLight(int, int,FloatBuffer *);
-void glLightModel(int, FloatBuffer *);
+void glLight(int,int,FloatBuffer *);
+void glLightModel(int,FloatBuffer *);
 void glGetFloat(int a, FloatBuffer *b);
-void glTexCoordPointer(int, int, FloatBuffer *);
-void glNormalPointer(int, ByteBuffer *);
-void glColorPointer(int, bool, int, ByteBuffer *);
-void glVertexPointer(int, int, FloatBuffer *);
+void glTexCoordPointer(int,int,FloatBuffer *);
+void glTexCoordPointer(int,int,int,int);
+void glNormalPointer(int,ByteBuffer *);
+void glNormalPointer(int,int,int);
+void glEnableClientState(int);
+void glDisableClientState(int);
+void glColorPointer(int,bool,int,ByteBuffer *);
+void glColorPointer(int,int,int,int);
+void glVertexPointer(int,int,FloatBuffer *);
+void glVertexPointer(int,int,int,int);
+void glDrawArrays(int,int,int);
+void glNewList(int,int);
+void glEndList(int vertexCount = 0);
+void glCallList(int);
+void glMultMatrixf(float *);
+void glDeleteLists(int,int);
 void glTexImage2D(int,int,int,int,int,int,int,int,ByteBuffer *);
 void glDeleteTextures(IntBuffer *);
 void glCallLists(IntBuffer *);
 void glGenQueriesARB(IntBuffer *);
-void glGetQueryObjectuARB(int,int,IntBuffer *);
-void glFog(int,FloatBuffer *);
-void glMultMatrixf(float *);
-void glNewList(int,int);
-void glEndList(int vertexCount = 0);
-void glCallList(int);
-void glEnableClientState(int);
-void glDisableClientState(int);
-void glDeleteLists(int,int);
-void glCullFace(int);
-void gluPerspective(float,float,float,float);
-void glTexCoordPointer(int, int, int, int);
-void glNormalPointer(int, int, int);
-void glColorPointer(int, int, int, int);
-void glVertexPointer(int, int, int, int);
-void glDrawArrays(int,int,int);
+void glColorMask(bool,bool,bool,bool);
 void glBeginQueryARB(int,int);
 void glEndQueryARB(int);
+void glGetQueryObjectuARB(int,int,IntBuffer *);
+void gluPerspective(float,float,float,float);
 void glAlphaFunc(int,float);
 void glOrtho(float,float,float,float,float,float);
 void glFogi(int,int);
 void glFogf(int,float);
-void glColorMaterial(int,int);
-void glShadeModel(int);
+void glFog(int,FloatBuffer *);
 void glClientActiveTexture(int);
 void glActiveTexture(int);
-void glMultiTexCoord2f(int, float, float);
+void glMultiTexCoord2f(int,float,float);
 
 #endif // _LINUX64
 
@@ -189,7 +179,6 @@ public:
 	static void glBufferDataARB(int, ByteBuffer *, int) {}
 	static void glGenBuffersARB(IntBuffer *) {}
 };
-
 
 class Level;
 class Player;
@@ -213,11 +202,8 @@ public:
 	void dispose() {}
 };
 
-class ZipEntry
-{
-};
+class ZipEntry {};
 class InputStream;
-
 class File;
 class ZipFile
 {
@@ -247,65 +233,30 @@ public:
 	static wstring getKeyName(int) { return L"KEYNAME"; }
 	static void enableRepeatEvents(bool) {}
 
-	static const int KEY_A = 0;
-	static const int KEY_B = 1;
-	static const int KEY_C = 2;
-	static const int KEY_D = 3;
-	static const int KEY_E = 4;
-	static const int KEY_F = 5;
-	static const int KEY_G = 6;
-	static const int KEY_H = 7;
-	static const int KEY_I = 8;
-	static const int KEY_J = 9;
-	static const int KEY_K = 10;
-	static const int KEY_L = 11;
-	static const int KEY_M = 12;
-	static const int KEY_N = 13;
-	static const int KEY_O = 14;
-	static const int KEY_P = 15;
-	static const int KEY_Q = 16;
-	static const int KEY_R = 17;
-	static const int KEY_S = 18;
-	static const int KEY_T = 19;
-	static const int KEY_U = 20;
-	static const int KEY_V = 21;
-	static const int KEY_W = 22;
-	static const int KEY_X = 23;
-	static const int KEY_Y = 24;
-	static const int KEY_Z = 25;
-	static const int KEY_SPACE = 26;
-	static const int KEY_LSHIFT = 27;
-	static const int KEY_ESCAPE = 28;
-	static const int KEY_BACK = 29;
-	static const int KEY_RETURN = 30;
-	static const int KEY_RSHIFT = 31;
-	static const int KEY_UP = 32;
-	static const int KEY_DOWN = 33;
+	static const int KEY_A = 0;  static const int KEY_B = 1;  static const int KEY_C = 2;
+	static const int KEY_D = 3;  static const int KEY_E = 4;  static const int KEY_F = 5;
+	static const int KEY_G = 6;  static const int KEY_H = 7;  static const int KEY_I = 8;
+	static const int KEY_J = 9;  static const int KEY_K = 10; static const int KEY_L = 11;
+	static const int KEY_M = 12; static const int KEY_N = 13; static const int KEY_O = 14;
+	static const int KEY_P = 15; static const int KEY_Q = 16; static const int KEY_R = 17;
+	static const int KEY_S = 18; static const int KEY_T = 19; static const int KEY_U = 20;
+	static const int KEY_V = 21; static const int KEY_W = 22; static const int KEY_X = 23;
+	static const int KEY_Y = 24; static const int KEY_Z = 25;
+	static const int KEY_SPACE = 26;  static const int KEY_LSHIFT = 27;
+	static const int KEY_ESCAPE = 28; static const int KEY_BACK = 29;
+	static const int KEY_RETURN = 30; static const int KEY_RSHIFT = 31;
+	static const int KEY_UP = 32;    static const int KEY_DOWN = 33;
 	static const int KEY_TAB = 34;
-	static const int KEY_1 = 35;
-	static const int KEY_2 = 36;
-	static const int KEY_3 = 37;
-	static const int KEY_4 = 38;
-	static const int KEY_5 = 39;
-	static const int KEY_6 = 40;
-	static const int KEY_7 = 41;
-	static const int KEY_8 = 42;
-	static const int KEY_9 = 43;
-	static const int KEY_F1 = 44;
-	static const int KEY_F3 = 45;
-	static const int KEY_F4 = 46;
-	static const int KEY_F5 = 47;
-	static const int KEY_F6 = 48;
-	static const int KEY_F8 = 49;
-	static const int KEY_F9 = 50;
-	static const int KEY_F11 = 51;
-	static const int KEY_ADD = 52;
-	static const int KEY_SUBTRACT = 53;
-	static const int KEY_LEFT = 54;
-	static const int KEY_RIGHT = 55;
+	static const int KEY_1 = 35; static const int KEY_2 = 36; static const int KEY_3 = 37;
+	static const int KEY_4 = 38; static const int KEY_5 = 39; static const int KEY_6 = 40;
+	static const int KEY_7 = 41; static const int KEY_8 = 42; static const int KEY_9 = 43;
+	static const int KEY_F1 = 44;  static const int KEY_F3 = 45; static const int KEY_F4 = 46;
+	static const int KEY_F5 = 47;  static const int KEY_F6 = 48; static const int KEY_F8 = 49;
+	static const int KEY_F9 = 50;  static const int KEY_F11 = 51;
+	static const int KEY_ADD = 52; static const int KEY_SUBTRACT = 53;
+	static const int KEY_LEFT = 54; static const int KEY_RIGHT = 55;
 
 #ifdef _WINDOWS64
-	// Map LWJGL-style key constant to Windows VK code
 	static int toVK(int keyConst);
 #endif
 };
