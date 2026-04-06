@@ -230,11 +230,6 @@ void PreStitchedTextureMap::makeTextureAnimated(TexturePack *texturePack, Stitch
 			//__debugbreak();
 		}
 #endif
-		// Guard: skip animated texture if frame dimensions don't match stitched slot
-		if(first->getWidth() != tex->getWidth() || first->getHeight() != tex->getHeight())
-		{
-			return;
-		}
 
 		tex->init(stitchResult, frames, tex->getX(), tex->getY(), first->getWidth(), first->getHeight(), false);
 
