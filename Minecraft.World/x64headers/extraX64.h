@@ -4,6 +4,10 @@
 #include <string>
 #include <functional>
 
+#ifdef _LINUX64
+#include "../../Minecraft.Client/Linux64/Linux64_Compat.h"
+#endif
+
 #ifndef _LINUX64
 #include "..\..\Minecraft.Client\SkinBox.h"
 #endif
