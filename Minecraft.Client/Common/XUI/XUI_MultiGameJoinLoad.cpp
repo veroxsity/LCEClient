@@ -2,17 +2,17 @@
 #include <xuiresource.h>
 #include <xuiapp.h>
 #include <assert.h>
-#include "../../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/StringHelpers.h"
 #include "../../Common/Tutorial/TutorialMode.h"
-#include "../../../Minecraft.World/ConsoleSaveFileIO.h"
+#include "../../Minecraft.World/ConsoleSaveFileIO.h"
 #include "../../LocalPlayer.h"
 #include "../../Minecraft.h"
 #include "../../ProgressRenderer.h"
-#include "../../../Minecraft.World/AABB.h"
-#include "../../../Minecraft.World/Vec3.h"
-#include "../../../Minecraft.World/ArrayWithLength.h"
-#include "../../../Minecraft.World/File.h"
-#include "../../../Minecraft.World/InputOutputStream.h"
+#include "../../Minecraft.World/AABB.h"
+#include "../../Minecraft.World/Vec3.h"
+#include "../../Minecraft.World/ArrayWithLength.h"
+#include "../../Minecraft.World/File.h"
+#include "../../Minecraft.World/InputOutputStream.h"
 #include "XUI_Ctrl_4JList.h"
 #include "XUI_Ctrl_4JIcon.h"
 #include "XUI_LoadSettings.h"
@@ -25,7 +25,7 @@
 #include "../GameRules/LevelGenerationOptions.h"
 #include "../../TexturePackRepository.h"
 #include "../../TexturePack.h"
-#include "../../../Minecraft.World/LevelSettings.h"
+#include "../../Minecraft.World/LevelSettings.h"
 
 #define CHECKFORAVAILABLETEXTUREPACKS_TIMER_ID 3
 #define CHECKFORAVAILABLETEXTUREPACKS_TIMER_TIME 100

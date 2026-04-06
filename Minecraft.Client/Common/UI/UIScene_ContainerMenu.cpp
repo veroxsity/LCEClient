@@ -2,9 +2,9 @@
 #include "UI.h"
 #include "UIScene_ContainerMenu.h"
 
-#include "../../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../../Minecraft.World/net.minecraft.stats.h"
+#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../../Minecraft.World/net.minecraft.world.item.h"
+#include "../../Minecraft.World/net.minecraft.stats.h"
 #include "../../LocalPlayer.h"
 #include "../../Minecraft.h"
 #include "../Tutorial/Tutorial.h"

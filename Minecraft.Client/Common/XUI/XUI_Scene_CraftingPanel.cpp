@@ -5,11 +5,11 @@
 
 #include <assert.h>
 #include "../../MultiplayerLocalPlayer.h"
-#include "../../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../../Minecraft.World/net.minecraft.world.item.crafting.h"
-#include "../../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../../Minecraft.World/Tile.h"
-#include "../../../Minecraft.World/net.minecraft.stats.h"
+#include "../../Minecraft.World/net.minecraft.world.item.h"
+#include "../../Minecraft.World/net.minecraft.world.item.crafting.h"
+#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../../Minecraft.World/Tile.h"
+#include "../../Minecraft.World/net.minecraft.stats.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"
 #include "../../Common/Tutorial/TutorialEnum.h"

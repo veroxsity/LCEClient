@@ -121,7 +121,7 @@ typedef XNKID SessionID;
 typedef XUID GameSessionUID;
 #define HRESULT_SUCCEEDED(hr) (((HRESULT)(hr)) >= 0)
 
-#include "../Minecraft.Client/xbox/network/extra.h"
+#include "Minecraft.Client/xbox/network/extra.h"
 #else
 #include "extraX64.h"
 #endif
@@ -162,13 +162,13 @@ typedef XUID GameSessionUID;
 #include <xparty.h>
 #endif
 
-#include "../Minecraft.World/Definitions.h"
-#include "../Minecraft.World/class.h"
-#include "../Minecraft.World/ArrayWithLength.h"
-#include "../Minecraft.World/SharedConstants.h"
-#include "../Minecraft.World/Random.h"
-#include "../Minecraft.World/compression.h"
-#include "../Minecraft.World/PerformanceTimer.h"
+#include "Minecraft.World/Definitions.h"
+#include "Minecraft.World/class.h"
+#include "Minecraft.World/ArrayWithLength.h"
+#include "Minecraft.World/SharedConstants.h"
+#include "Minecraft.World/Random.h"
+#include "Minecraft.World/compression.h"
+#include "Minecraft.World/PerformanceTimer.h"
 
 #ifdef _XBOX
 	#include "xbox/4JLibs/inc/4J_Input.h"

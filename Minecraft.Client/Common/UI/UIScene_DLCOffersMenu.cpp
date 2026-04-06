@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UI.h"
 #include "UIScene_DLCOffersMenu.h"
-#include "../../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/StringHelpers.h"
 #if defined(__PS3__) || defined(__ORBIS__) || defined (__PSVITA__)
 #include "Common/Network/Sony/SonyHttp.h"
 #endif

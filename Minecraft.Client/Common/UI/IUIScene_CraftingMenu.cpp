@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
-#include "../../../Minecraft.World/net.minecraft.world.item.crafting.h"
-#include "../../../Minecraft.World/net.minecraft.world.level.tile.h"
-#include "../../../Minecraft.World/net.minecraft.stats.h"
+#include "../../Minecraft.World/net.minecraft.world.item.crafting.h"
+#include "../../Minecraft.World/net.minecraft.world.level.tile.h"
+#include "../../Minecraft.World/net.minecraft.stats.h"
 #include "../../LocalPlayer.h"
 #include "IUIScene_CraftingMenu.h"
 

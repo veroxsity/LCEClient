@@ -6,9 +6,9 @@
 #include "../../Lighting.h"
 #include "../../ScreenSizeCalculator.h"
 #include "../../LocalPlayer.h"
-#include "../../../Minecraft.World/ItemInstance.h"
-#include "../../../Minecraft.World/Item.h"
-#include "../../../Minecraft.World/Tile.h"
+#include "../../Minecraft.World/ItemInstance.h"
+#include "../../Minecraft.World/Item.h"
+#include "../../Minecraft.World/Tile.h"
 #include "XUI_Ctrl_MinecraftSlot.h"
 
 //-----------------------------------------------------------------------------

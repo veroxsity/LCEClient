@@ -1,6 +1,7 @@
 import re, os, glob
 
 roots = [
+    r'C:\Users\Dan\Documents\Programming\.MinecraftLegacyEdition\client\Minecraft.World',
     r'C:\Users\Dan\Documents\Programming\.MinecraftLegacyEdition\client\Minecraft.Client\Common',
     r'C:\Users\Dan\Documents\Programming\.MinecraftLegacyEdition\client\Minecraft.Client\Linux64',
 ]
@@ -13,17 +14,13 @@ for root in roots:
                 with open(path, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
                 original = content
-                content = re.sub(
-                    r'(#include\s+")([^"]+)(")',
-                    lambda m: m.group(1) + m.group(2).replace('\\', '/') + m.group(3),
-                    content
-                )
+                content = content.replace('../Minecraft.Client/', 'Minecraft.Client/')
+                content = content.replace('../Minecraft.World/', 'Minecraft.World/')
                 if content != original:
                     with open(path, 'w', encoding='utf-8') as f:
                         f.write(content)
                     fixed_count += 1
-                    print(f'  Fixed: {os.path.basename(path)}')
             except Exception as e:
-                print(f'  Error {path}: {e}')
+                print(f'Error {path}: {e}')
 
-print(f'Total: {fixed_count} files fixed')
+print(f'Fixed {fixed_count} files')

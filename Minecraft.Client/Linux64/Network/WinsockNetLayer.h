@@ -8,7 +8,7 @@
 #include <vector>
 #include <stdint.h>
 #include "../Common/Network/NetworkPlayerInterface.h"
-#include "../../Minecraft.World/DisconnectPacket.h"
+#include "../Minecraft.World/DisconnectPacket.h"
 
 #define WIN64_NET_DEFAULT_PORT      25565
 #define WIN64_NET_MAX_CLIENTS       255

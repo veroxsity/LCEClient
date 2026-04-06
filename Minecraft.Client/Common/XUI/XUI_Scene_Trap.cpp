@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "../../../Minecraft.World/DispenserTileEntity.h"
-#include "../../../Minecraft.World/TrapMenu.h"
+#include "../../Minecraft.World/DispenserTileEntity.h"
+#include "../../Minecraft.World/TrapMenu.h"
 #include "../../MultiplayerLocalPlayer.h"
 #include "XUI_Ctrl_SlotList.h"
 #include "XUI_Scene_Trap.h"

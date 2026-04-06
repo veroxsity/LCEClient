@@ -13,8 +13,8 @@
 #include "../../ModelPart.h"
 #include "../../Options.h"
 
-#include "../../../Minecraft.World/net.minecraft.world.entity.player.h"
-//#include "../../../Minecraft.World/net.minecraft.world.entity.animal.EntityHorse.h"
+#include "../../Minecraft.World/net.minecraft.world.entity.player.h"
+//#include "../../Minecraft.World/net.minecraft.world.entity.animal.EntityHorse.h"
 
 #include "../../MultiplayerLocalPlayer.h"
 #include "UI.h"

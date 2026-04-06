@@ -22,14 +22,14 @@
 #include "Settings.h"
 #include "GameRenderer.h"
 #include "ConnectScreen.h"
-#include "../Minecraft.World/compression.h"
-#include "../Minecraft.World/OldChunkStorage.h"
-#include "../Minecraft.World/AABB.h"
-#include "../Minecraft.World/Vec3.h"
-#include "../Minecraft.World/Level.h"
-#include "../Minecraft.World/IntCache.h"
-#include "../Minecraft.World/Socket.h"
-#include "../Minecraft.World/ThreadName.h"
+#include "Minecraft.World/compression.h"
+#include "Minecraft.World/OldChunkStorage.h"
+#include "Minecraft.World/AABB.h"
+#include "Minecraft.World/Vec3.h"
+#include "Minecraft.World/Level.h"
+#include "Minecraft.World/IntCache.h"
+#include "Minecraft.World/Socket.h"
+#include "Minecraft.World/ThreadName.h"
 
 // Globals
 SDL_Window*   g_pWindow  = nullptr;

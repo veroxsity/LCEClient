@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
-#include "../../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../../Minecraft.World/net.minecraft.stats.h"
-#include "../../../Minecraft.World/net.minecraft.world.effect.h"
+#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../../Minecraft.World/net.minecraft.stats.h"
+#include "../../Minecraft.World/net.minecraft.world.effect.h"
 #include "../../MultiplayerLocalPlayer.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"

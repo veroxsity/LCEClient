@@ -4,8 +4,8 @@
 #include "../../Lighting.h"
 #include "XUI_Ctrl_SplashPulser.h"
 #include "../../Font.h"
-#include "../../../Minecraft.World/Mth.h"
-#include "../../../Minecraft.World/System.h"
+#include "../../Minecraft.World/Mth.h"
+#include "../../Minecraft.World/System.h"
 
 //-----------------------------------------------------------------------------
 //  CXuiCtrlSplashPulser class

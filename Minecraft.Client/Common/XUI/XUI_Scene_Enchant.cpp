@@ -1,11 +1,11 @@
 #include "stdafx.h"
 
-#include "../../../Minecraft.World/AbstractContainerMenu.h"
-#include "../../../Minecraft.World/Slot.h"
-#include "../../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../../Minecraft.World/net.minecraft.world.level.dimension.h"
+#include "../../Minecraft.World/AbstractContainerMenu.h"
+#include "../../Minecraft.World/Slot.h"
+#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../../Minecraft.World/net.minecraft.world.level.dimension.h"
 
-//#include "../../../Minecraft.World/net.minecraft.stats.h"
+//#include "../../Minecraft.World/net.minecraft.stats.h"
 #include "../../MultiplayerLocalPlayer.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"

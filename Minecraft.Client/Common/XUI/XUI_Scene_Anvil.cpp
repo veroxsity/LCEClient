@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "../../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../../Minecraft.World/StringHelpers.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"

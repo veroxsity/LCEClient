@@ -13,8 +13,8 @@ using namespace std;
 
 #include "XUI_Scene_Enchant.h"
 
-#include "../../../Minecraft.World/AbstractContainerMenu.h"
-#include "../../../Minecraft.World/SimpleContainer.h"
+#include "../../Minecraft.World/AbstractContainerMenu.h"
+#include "../../Minecraft.World/SimpleContainer.h"
 
 class Level;
 class CXuiCtrlEnchantmentButton;

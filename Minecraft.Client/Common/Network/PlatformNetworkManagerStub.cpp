@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "../../../Minecraft.World/Socket.h"
-#include "../../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/Socket.h"
+#include "../../Minecraft.World/StringHelpers.h"
 #include "PlatformNetworkManagerStub.h"
 #include "../../Xbox/Network/NetworkPlayerXbox.h"
 #ifdef _WINDOWS64

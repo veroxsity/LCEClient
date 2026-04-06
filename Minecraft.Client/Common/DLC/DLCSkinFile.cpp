@@ -4,8 +4,8 @@
 #include "../../ModelPart.h"
 #include "../../EntityRenderer.h"
 #include "../../EntityRenderDispatcher.h"
-#include "../../../Minecraft.World/Player.h"
-#include "../../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/Player.h"
+#include "../../Minecraft.World/StringHelpers.h"
 
 DLCSkinFile::DLCSkinFile(const wstring &path) : DLCFile(DLCManager::e_DLCType_Skin,path)
 {

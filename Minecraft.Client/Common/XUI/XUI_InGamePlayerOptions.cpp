@@ -4,9 +4,9 @@
 #include "../../Minecraft.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../ClientConnection.h"
-#include "../../../Minecraft.World/net.minecraft.network.h"
-#include "../../../Minecraft.World/net.minecraft.network.packet.h"
-#include "../../../Minecraft.World/net.minecraft.world.entity.player.h"
+#include "../../Minecraft.World/net.minecraft.network.h"
+#include "../../Minecraft.World/net.minecraft.network.packet.h"
+#include "../../Minecraft.World/net.minecraft.world.entity.player.h"
 #include "XUI_InGameInfo.h"
 
 

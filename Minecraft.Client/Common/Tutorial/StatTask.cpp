@@ -2,7 +2,7 @@
 #include "../../Minecraft.h"
 #include "../../LocalPlayer.h"
 #include "../../StatsCounter.h"
-#include "../../../Minecraft.World/net.minecraft.stats.h"
+#include "../../Minecraft.World/net.minecraft.stats.h"
 #include "StatTask.h"
 
 StatTask::StatTask(Tutorial *tutorial, int descriptionId, bool enablePreCompletion, Stat *stat, int variance /*= 1*/)

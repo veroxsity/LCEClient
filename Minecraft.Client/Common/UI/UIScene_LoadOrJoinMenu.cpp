@@ -2,12 +2,12 @@
 #include "UI.h"
 #include "UIScene_LoadOrJoinMenu.h"
 
-#include "../../../Minecraft.World/StringHelpers.h"
-#include "../../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../../Minecraft.World/net.minecraft.world.level.h"
-#include "../../../Minecraft.World/net.minecraft.world.level.chunk.storage.h"
-#include "../../../Minecraft.World/ConsoleSaveFile.h"
-#include "../../../Minecraft.World/ConsoleSaveFileOriginal.h"
+#include "../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/net.minecraft.world.item.h"
+#include "../../Minecraft.World/net.minecraft.world.level.h"
+#include "../../Minecraft.World/net.minecraft.world.level.chunk.storage.h"
+#include "../../Minecraft.World/ConsoleSaveFile.h"
+#include "../../Minecraft.World/ConsoleSaveFileOriginal.h"
 #include "../../ProgressRenderer.h"
 #include "../../MinecraftServer.h"
 #include "../../TexturePackRepository.h"
@@ -26,8 +26,8 @@
 #endif
 
 #ifdef _WINDOWS64
-#include "../../../Minecraft.World/NbtIo.h"
-#include "../../../Minecraft.World/compression.h"
+#include "../../Minecraft.World/NbtIo.h"
+#include "../../Minecraft.World/compression.h"
 
 static wstring ReadLevelNameFromSaveFile(const wstring& filePath)
 {

@@ -6,11 +6,11 @@
 #include "../../Options.h"
 #include "../../TexturePackRepository.h"
 #include "../../TexturePack.h"
-#include "../../../Minecraft.World/LevelSettings.h"
-#include "../../../Minecraft.World/StringHelpers.h"
-#include "../../../Minecraft.World/BiomeSource.h"
-#include "../../../Minecraft.World/IntCache.h"
-#include "../../../Minecraft.World/LevelType.h"
+#include "../../Minecraft.World/LevelSettings.h"
+#include "../../Minecraft.World/StringHelpers.h"
+#include "../../Minecraft.World/BiomeSource.h"
+#include "../../Minecraft.World/IntCache.h"
+#include "../../Minecraft.World/LevelType.h"
 #include "../../DLCTexturePack.h"
 
 #ifdef __PSVITA__
