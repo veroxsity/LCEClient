@@ -46,6 +46,7 @@ using namespace DirectX;
 #include <algorithm>
 #include <functional>
 #include <climits>
+#include <cfloat>
 #include <cassert>
 #include <cstdio>
 #include <cstring>

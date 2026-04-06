@@ -103,6 +103,7 @@ typedef XUID GameSessionUID;
 #include <algorithm>
 #include <math.h>
 #include <climits>
+#include <cfloat>
 #include <limits>
 #include <string>
 #include <sstream>
