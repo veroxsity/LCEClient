@@ -135,6 +135,7 @@ void Texture::_init(const wstring &name, int mode, int width, int height, int de
 				{
 					int ww = width >> level;
 					int hh = height >> height;
+					if (ww <= 0 || hh <= 0) break; // Guard against zero-size mip levels
 
 					byteArray tempBytes = byteArray(ww * hh * depth * 4);
 					for (int index = 0; index < tempBytes.length; index++)
@@ -390,6 +391,7 @@ void Texture::blit(int x, int y, Texture *source, bool rotated)
 		int xx = x >> level;
 		int hh = height >> level;
 		int ww = width >> level;
+		if (ww <= 0 || hh <= 0) break; // Guard against zero-size mip levels
 		int shh = source->getHeight() >> level;
 		int sww = source->getWidth() >> level;
 
@@ -625,6 +627,7 @@ void Texture::transferFromImage(BufferedImage *image)
 		{
 			int ww = width >> level;
 			int hh = height >> level;
+			if (ww <= 0 || hh <= 0) break; // Guard against zero-size mip levels
 
 			byteArray tempBytes = byteArray(ww * hh * 4);
 			unsigned int *tempData = new unsigned int[ww * hh];
@@ -842,6 +845,7 @@ void Texture::updateOnGPU()
 				{
 					int levelWidth = width >> level;
 					int levelHeight = height >> level;
+					if (levelWidth <= 0 || levelHeight <= 0) break; // Guard against zero-size mip levels
 
 #ifdef __PSVITA__
 					// AP - replace the dynamic ram buffer to one that points to a newly allocated video ram texture buffer. This means we don't have to memcpy
@@ -875,6 +879,7 @@ void Texture::updateOnGPU()
 					{
 						int levelWidth = width >> level;
 						int levelHeight = height >> level;
+						if (levelWidth <= 0 || levelHeight <= 0) break; // Guard against zero-size mip levels
 					
 #ifdef _XBOX
 						RenderManager.TextureDataUpdate(data[level]->getBuffer(),level);
