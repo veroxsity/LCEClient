@@ -255,7 +255,7 @@ int main(int argc, char* argv[]) {
         g_NetworkManager.DoWork();
 
         if (app.GetGameStarted()) {
-            pMinecraft->applyFrameMouseLook();
+            // TODO Phase 4: implement SDL2 mouse look (applyFrameMouseLook is Windows-only for now)
             pMinecraft->run_middle();
             app.SetAppPaused(g_NetworkManager.IsLocalGame()&&g_NetworkManager.GetPlayerCount()==1&&ui.IsPauseMenuDisplayed(ProfileManager.GetPrimaryPad()));
         } else {
