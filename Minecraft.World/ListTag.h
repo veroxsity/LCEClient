@@ -52,6 +52,7 @@ public:
 
 	void print(char *prefix, ostream& out)
 	{
+#ifndef _LINUX64
 		Tag::print(prefix, out);
 
 		out << prefix << "{" << endl;
@@ -63,9 +64,10 @@ public:
 			it->print(newPrefix, out);
 		delete[] newPrefix;
 		out << prefix << "}" << endl;
+#endif // _LINUX64
 	}
 
-	void add(T *tag)
+	void add
 	{
 		type = tag->getId();
 		// 4J: List tag write/load doesn't preserve tag names so remove them so we can safely do comparisons
