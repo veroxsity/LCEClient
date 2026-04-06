@@ -67,7 +67,7 @@ public:
 #endif // _LINUX64
 	}
 
-	void add
+	void add(T *tag)
 	{
 		type = tag->getId();
 		// 4J: List tag write/load doesn't preserve tag names so remove them so we can safely do comparisons
