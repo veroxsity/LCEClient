@@ -121,12 +121,10 @@ void glActiveTexture(int);
 
 #else // _LINUX64: GLEW provides real GL functions. Only declare project-specific wrappers.
 
-// Custom overloads taking project buffer types (not in GL/GLEW)
-void glTexGeni(int,int,int);
+// Custom overloads taking project buffer types — signatures that don't exist in GL/GLEW
 void glTexGen(int,int,FloatBuffer *);
 void glReadPixels(int,int,int,int,int,int,ByteBuffer *);
 void glGenTextures(IntBuffer *);
-int glGenTextures();
 void glLight(int,int,FloatBuffer *);
 void glLightModel(int,FloatBuffer *);
 void glGetFloat(int a, FloatBuffer *b);
@@ -134,15 +132,13 @@ void glTexCoordPointer(int,int,FloatBuffer *);
 void glNormalPointer(int,ByteBuffer *);
 void glColorPointer(int,bool,int,ByteBuffer *);
 void glVertexPointer(int,int,FloatBuffer *);
-void glNewList(int,int);
-void glEndList(int vertexCount = 0);
-void glCallList(int);
-void glDeleteLists(int,int);
 void glTexImage2D(int,int,int,int,int,int,int,int,ByteBuffer *);
 void glDeleteTextures(IntBuffer *);
 void glCallLists(IntBuffer *);
-void gluPerspective(float,float,float,float);
 void glFog(int,FloatBuffer *);
+
+// gluPerspective is not in GLEW (it's GLU) — keep our float version
+void gluPerspective(float,float,float,float);
 
 // These are provided by GLEW as macro->function-pointer, so no declaration needed:
 // glGenQueriesARB, glBeginQueryARB, glEndQueryARB, glGetQueryObjectuARB
