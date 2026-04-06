@@ -5,6 +5,7 @@
 #include "../../Minecraft.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../Minecraft.World/StringHelpers.h"
+#include <iterator>
 
 UIControl_EnchantmentButton::UIControl_EnchantmentButton()
 {
