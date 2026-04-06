@@ -23,6 +23,8 @@
 #ifdef _WINDOWS64
 #include "Windows64/Network/WinsockNetLayer.h"
 #include "Windows64/Windows64_Xuid.h"
+#elif defined _LINUX64
+#include "Linux64/Network/WinsockNetLayer.h"
 #endif
 #elif defined __PSVITA__
 #include "PSVita/Sentient/SentientManager.h"
@@ -47,7 +49,7 @@ C_4JProfile ProfileManager;
 CSentientManager SentientManager;
 CXuiStringTable StringTable;
 
-#ifndef _XBOX_ONE
+#if !defined(_XBOX_ONE) && !defined(_LINUX64)
 ATG::XMLParser::XMLParser() {}
 ATG::XMLParser::~XMLParser() {}
 HRESULT    ATG::XMLParser::ParseXMLBuffer(CONST CHAR* strBuffer, UINT uBufferSize) { return S_OK; }
@@ -70,7 +72,7 @@ DWORD XContentGetThumbnail(DWORD dwUserIndex, const XCONTENT_DATA* pContentData,
 void XShowAchievementsUI(int i) {}
 DWORD XBackgroundDownloadSetMode(XBACKGROUND_DOWNLOAD_MODE Mode) { return 0; }
 
-#if !defined(_DURANGO) && !defined(_WIN64)
+#if !defined(_DURANGO) && !defined(_WIN64) && !defined(_LINUX64)
 void PIXAddNamedCounter(int a, const char* b, ...) {}
 //#define PS3_USE_PIX_EVENTS 
 //#define PS4_USE_PIX_EVENTS 
@@ -198,9 +200,15 @@ void IQNetPlayer::SendData(IQNetPlayer * player, const void* pvData, DWORD dwDat
 	{
 		if (!WinsockNetLayer::IsHosting() && !m_isRemote)
 		{
+#ifdef _WINDOWS64
 			SOCKET sock = WinsockNetLayer::GetLocalSocket(m_smallId);
 			if (sock != INVALID_SOCKET)
 				WinsockNetLayer::SendOnSocket(sock, pvData, dwDataSize);
+#elif defined _LINUX64
+			LinuxSocket sock = WinsockNetLayer::GetLocalSocket(m_smallId);
+			if (sock != INVALID_SOCKET_FD)
+				WinsockNetLayer::SendOnSocket(sock, pvData, dwDataSize);
+#endif
 		}
 		else
 		{
@@ -365,7 +373,11 @@ void IQNet::HostGame()
 	_iQNetStubState = QNET_STATE_SESSION_STARTING;
 	s_isHosting = true;
 	// Host slot keeps legacy XUID so old host player data remains addressable.
+#ifdef _WINDOWS64
 	m_player[0].m_resolvedXuid = Win64Xuid::GetLegacyEmbeddedHostXuid();
+#else
+	m_player[0].m_resolvedXuid = 0;
+#endif
 }
 void IQNet::ClientJoinGame()
 {
