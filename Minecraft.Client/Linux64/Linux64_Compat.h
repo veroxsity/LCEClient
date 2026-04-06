@@ -46,6 +46,7 @@ typedef long long           LONGLONG;
 typedef unsigned long long  ULONGLONG;
 typedef float               FLOAT;
 typedef int                 BOOL;
+typedef bool                boolean;
 typedef void*               LPVOID;
 typedef void*               PVOID;
 typedef BOOL*               PBOOL;
