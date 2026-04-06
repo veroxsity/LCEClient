@@ -638,10 +638,6 @@ inline int MultiByteToWideChar(UINT cp, DWORD flags, LPCSTR src, int srcLen,
 #define XUSER_INDEX_ANY 0xFF
 
 // --------------- PIX profiling — no-ops ---------------
-#define PIXBeginNamedEvent(col, name, ...) ((void)0)
-#define PIXEndNamedEvent()                 ((void)0)
-#define PIXAddNamedCounter(val, name, ...) ((void)0)
-
 // --------------- OS helpers ---------------
 inline DWORD GetModuleFileNameA(HINSTANCE, LPSTR buf, DWORD size) {
     ssize_t len = readlink("/proc/self/exe", buf, size - 1);
