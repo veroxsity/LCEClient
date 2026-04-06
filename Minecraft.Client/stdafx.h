@@ -45,6 +45,7 @@ using namespace DirectX;
 #include <unordered_set>
 #include <algorithm>
 #include <functional>
+#include <climits>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
