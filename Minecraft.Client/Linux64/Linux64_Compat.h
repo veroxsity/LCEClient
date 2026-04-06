@@ -184,6 +184,8 @@ typedef HANDLE              HTHREAD;
 #define FILE_FLAG_NO_BUFFERING 0x20000000
 
 #define INVALID_FILE_SIZE ((DWORD)-1)
+#define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#define NO_ERROR 0L
 
 #define PAGE_NOACCESS          0x01
 #define PAGE_READONLY          0x02
@@ -245,6 +247,7 @@ inline void InitializeCriticalSectionAndSpinCount(CRITICAL_SECTION* cs, DWORD) {
 inline void DeleteCriticalSection(CRITICAL_SECTION* cs)     { pthread_mutex_destroy(&cs->mutex); }
 inline void EnterCriticalSection(CRITICAL_SECTION* cs)      { pthread_mutex_lock(&cs->mutex); }
 inline void LeaveCriticalSection(CRITICAL_SECTION* cs)      { pthread_mutex_unlock(&cs->mutex); }
+inline ULONG TryEnterCriticalSection(CRITICAL_SECTION* cs)  { return pthread_mutex_trylock(&cs->mutex) == 0 ? 1UL : 0UL; }
 
 inline DWORD TlsAlloc() { pthread_key_t k; pthread_key_create(&k, nullptr); return (DWORD)k; }
 inline void  TlsFree(DWORD idx)               { pthread_key_delete((pthread_key_t)idx); }
@@ -502,6 +505,16 @@ inline std::string NormalisePath(const wchar_t* path) {
     return normalised;
 }
 
+inline void UnixTimeToFileTime(time_t seconds, long nanoseconds, FILETIME* outTime) {
+    if (!outTime) return;
+    const uint64_t windowsEpochOffsetSeconds = 11644473600ULL;
+    const uint64_t ticks =
+        (static_cast<uint64_t>(seconds) + windowsEpochOffsetSeconds) * 10000000ULL +
+        static_cast<uint64_t>(nanoseconds / 100);
+    outTime->dwLowDateTime = static_cast<DWORD>(ticks & 0xFFFFFFFFULL);
+    outTime->dwHighDateTime = static_cast<DWORD>((ticks >> 32) & 0xFFFFFFFFULL);
+}
+
 inline void FillFindData(const std::string& directory, const char* name, WIN32_FIND_DATAA* outData) {
     ZeroMemory(outData, sizeof(*outData));
     strncpy(outData->cFileName, name, MAX_PATH - 1);
@@ -516,6 +529,15 @@ inline void FillFindData(const std::string& directory, const char* name, WIN32_F
     outData->dwFileAttributes = S_ISDIR(st.st_mode) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
     outData->nFileSizeHigh = static_cast<DWORD>((static_cast<uint64_t>(st.st_size) >> 32) & 0xFFFFFFFF);
     outData->nFileSizeLow = static_cast<DWORD>(static_cast<uint64_t>(st.st_size) & 0xFFFFFFFF);
+#if defined(__linux__)
+    UnixTimeToFileTime(st.st_ctim.tv_sec, st.st_ctim.tv_nsec, &outData->ftCreationTime);
+    UnixTimeToFileTime(st.st_atim.tv_sec, st.st_atim.tv_nsec, &outData->ftLastAccessTime);
+    UnixTimeToFileTime(st.st_mtim.tv_sec, st.st_mtim.tv_nsec, &outData->ftLastWriteTime);
+#else
+    UnixTimeToFileTime(st.st_ctime, 0, &outData->ftCreationTime);
+    UnixTimeToFileTime(st.st_atime, 0, &outData->ftLastAccessTime);
+    UnixTimeToFileTime(st.st_mtime, 0, &outData->ftLastWriteTime);
+#endif
 }
 
 inline bool FindNextEntry(FindHandle* handle, WIN32_FIND_DATAA* outData) {
@@ -553,7 +575,22 @@ inline int OpenFlagsFor(DWORD desiredAccess, DWORD creationDisposition) {
 
 } // namespace linux64_detail
 
+typedef struct _WIN32_FILE_ATTRIBUTE_DATA {
+    DWORD dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    DWORD nFileSizeHigh;
+    DWORD nFileSizeLow;
+} WIN32_FILE_ATTRIBUTE_DATA, *LPWIN32_FILE_ATTRIBUTE_DATA;
+
+typedef enum _GET_FILEEX_INFO_LEVELS {
+    GetFileExInfoStandard,
+    GetFileExMaxInfoLevel
+} GET_FILEEX_INFO_LEVELS;
+
 #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+inline DWORD GetLastError() { return static_cast<DWORD>(errno); }
 inline DWORD GetFileAttributesA(LPCSTR path) {
     std::string normalised = linux64_detail::NormalisePath(path);
     struct stat st;
@@ -690,12 +727,57 @@ inline BOOL CreateDirectoryA(LPCSTR path, LPSECURITY_ATTRIBUTES) {
 inline BOOL CreateDirectoryW(LPCWSTR path, LPSECURITY_ATTRIBUTES attrs) {
     return CreateDirectoryA(linux64_detail::NormalisePath(path).c_str(), attrs);
 }
+inline BOOL CreateDirectory(LPCSTR path, LPSECURITY_ATTRIBUTES attrs) { return CreateDirectoryA(path, attrs); }
+inline BOOL CreateDirectory(LPCWSTR path, LPSECURITY_ATTRIBUTES attrs) { return CreateDirectoryW(path, attrs); }
 inline BOOL RemoveDirectoryA(LPCSTR path) {
     std::string normalised = linux64_detail::NormalisePath(path);
     return rmdir(normalised.c_str()) == 0;
 }
 inline BOOL RemoveDirectoryW(LPCWSTR path) {
     return RemoveDirectoryA(linux64_detail::NormalisePath(path).c_str());
+}
+
+inline BOOL MoveFileA(LPCSTR existingPath, LPCSTR newPath) {
+    std::string existingNormalised = linux64_detail::NormalisePath(existingPath);
+    std::string newNormalised = linux64_detail::NormalisePath(newPath);
+    return rename(existingNormalised.c_str(), newNormalised.c_str()) == 0;
+}
+inline BOOL MoveFileW(LPCWSTR existingPath, LPCWSTR newPath) {
+    return MoveFileA(linux64_detail::NormalisePath(existingPath).c_str(), linux64_detail::NormalisePath(newPath).c_str());
+}
+inline BOOL MoveFile(LPCSTR existingPath, LPCSTR newPath) { return MoveFileA(existingPath, newPath); }
+inline BOOL MoveFile(LPCWSTR existingPath, LPCWSTR newPath) { return MoveFileW(existingPath, newPath); }
+
+inline BOOL GetFileAttributesExA(LPCSTR path, GET_FILEEX_INFO_LEVELS, LPVOID outInfo) {
+    if (!outInfo) return FALSE;
+    std::string normalised = linux64_detail::NormalisePath(path);
+    struct stat st;
+    if (stat(normalised.c_str(), &st) != 0) return FALSE;
+
+    auto* info = static_cast<WIN32_FILE_ATTRIBUTE_DATA*>(outInfo);
+    ZeroMemory(info, sizeof(*info));
+    info->dwFileAttributes = S_ISDIR(st.st_mode) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+    info->nFileSizeHigh = static_cast<DWORD>((static_cast<uint64_t>(st.st_size) >> 32) & 0xFFFFFFFF);
+    info->nFileSizeLow = static_cast<DWORD>(static_cast<uint64_t>(st.st_size) & 0xFFFFFFFF);
+#if defined(__linux__)
+    linux64_detail::UnixTimeToFileTime(st.st_ctim.tv_sec, st.st_ctim.tv_nsec, &info->ftCreationTime);
+    linux64_detail::UnixTimeToFileTime(st.st_atim.tv_sec, st.st_atim.tv_nsec, &info->ftLastAccessTime);
+    linux64_detail::UnixTimeToFileTime(st.st_mtim.tv_sec, st.st_mtim.tv_nsec, &info->ftLastWriteTime);
+#else
+    linux64_detail::UnixTimeToFileTime(st.st_ctime, 0, &info->ftCreationTime);
+    linux64_detail::UnixTimeToFileTime(st.st_atime, 0, &info->ftLastAccessTime);
+    linux64_detail::UnixTimeToFileTime(st.st_mtime, 0, &info->ftLastWriteTime);
+#endif
+    return TRUE;
+}
+inline BOOL GetFileAttributesExW(LPCWSTR path, GET_FILEEX_INFO_LEVELS infoLevel, LPVOID outInfo) {
+    return GetFileAttributesExA(linux64_detail::NormalisePath(path).c_str(), infoLevel, outInfo);
+}
+inline BOOL GetFileAttributesEx(LPCSTR path, GET_FILEEX_INFO_LEVELS infoLevel, LPVOID outInfo) {
+    return GetFileAttributesExA(path, infoLevel, outInfo);
+}
+inline BOOL GetFileAttributesEx(LPCWSTR path, GET_FILEEX_INFO_LEVELS infoLevel, LPVOID outInfo) {
+    return GetFileAttributesExW(path, infoLevel, outInfo);
 }
 
 inline HANDLE FindFirstFileA(LPCSTR pattern, LPWIN32_FIND_DATAA outData) {
@@ -729,6 +811,7 @@ inline BOOL FindNextFileA(HANDLE handle, LPWIN32_FIND_DATAA outData) {
 }
 inline BOOL FindNextFileW(HANDLE handle, LPWIN32_FIND_DATAA outData) { return FindNextFileA(handle, outData); }
 inline BOOL FindNextFile(HANDLE handle, LPWIN32_FIND_DATAA outData) { return FindNextFileA(handle, outData); }
+inline BOOL FindClose(HANDLE handle) { return CloseHandle(handle); }
 
 #define SetProcessDPIAware()      ((void)0)
 #define GetProcAddress(mod, name) ((void*)nullptr)
