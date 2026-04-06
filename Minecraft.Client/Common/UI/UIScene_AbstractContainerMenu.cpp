@@ -259,11 +259,18 @@ void UIScene_AbstractContainerMenu::render(S32 width, S32 height, C4JRender::eVi
 
 void UIScene_AbstractContainerMenu::getMouseToSWFScale(float &scaleX, float &scaleY)
 {
+#ifdef _LINUX64
+	extern SDL_Window* g_pSDLWindow;
+	int winW = 0, winH = 0;
+	if (g_pSDLWindow)
+		SDL_GetWindowSize(g_pSDLWindow, &winW, &winH);
+#else
 	extern HWND g_hWnd;
 	RECT rc;
 	GetClientRect(g_hWnd, &rc);
 	int winW = rc.right - rc.left;
 	int winH = rc.bottom - rc.top;
+#endif
 	if(winW <= 0 || winH <= 0) { scaleX = 1.0f; scaleY = 1.0f; return; }
 
 	S32 renderW, renderH;
