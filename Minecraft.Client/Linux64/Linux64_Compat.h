@@ -68,8 +68,34 @@ typedef intptr_t            LONG_PTR;
 // FILETIME (Windows timestamp struct — stubbed as a 64-bit value)
 typedef struct { DWORD dwLowDateTime; DWORD dwHighDateTime; } FILETIME;
 
-// Windows high-resolution timer type (used by PerformanceTimer)
-typedef union { struct { DWORD LowPart; LONG HighPart; }; int64_t QuadPart; } LARGE_INTEGER;
+// Windows high-resolution timer and file-size helper types.
+typedef union _LARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    };
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    } u;
+    LONGLONG QuadPart;
+} LARGE_INTEGER;
+
+typedef LARGE_INTEGER* PLARGE_INTEGER;
+
+typedef union _ULARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    };
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    } u;
+    ULONGLONG QuadPart;
+} ULARGE_INTEGER;
+
+typedef ULARGE_INTEGER* PULARGE_INTEGER;
 
 // ZeroMemory — Windows macro equivalent
 #define ZeroMemory(dest, size) memset(dest, 0, size)
