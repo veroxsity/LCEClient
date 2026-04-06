@@ -316,6 +316,7 @@ typedef XUID GameSessionUID;
 	#include "Common/Audio/SoundEngine.h"
 	#include "Linux64/Linux64_App.h"
 	#include "Linux64/Linux64_UIController.h"
+	#include "Windows64/Social/SocialManager.h"
 	#include "Windows64Media/strings.h"
 	#include "Windows64/GameConfig/Minecraft.spa.h"
 	#include "Windows64/Sentient/DynamicConfigurations.h"
