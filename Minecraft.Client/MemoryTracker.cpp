@@ -16,7 +16,13 @@ int MemoryTracker::genLists(int count)
 
 int MemoryTracker::genTextures()
 {
+#ifdef _LINUX64
+	GLuint texId;
+	glGenTextures(1, &texId);
+	int id = static_cast<int>(texId);
+#else
 	int id = glGenTextures();
+#endif
 	TEXTURE_IDS.push_back(id);
 	return id;
 }
