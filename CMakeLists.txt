@@ -81,6 +81,7 @@ function(configure_compiler_target target)
   # Clang
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${target} PRIVATE
+      $<$<AND:$<STREQUAL:${PLATFORM_NAME},Linux64>,$<COMPILE_LANGUAGE:CXX>>:-fdeclspec -fms-extensions>
       $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C,CXX>>:-O0 -Wall>
       $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:C,CXX>>:-O2 -w -flto>
     )
