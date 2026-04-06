@@ -14,14 +14,21 @@
 #include <audioout.h>
 #endif
 
+#ifdef _WINDOWS64
 #include "Minecraft.Client/Windows64/Windows64_App.h"
+#endif
 
+// stb_vorbis and miniaudio use 'byte' as a parameter name, which clashes
+// with the project's `#define byte unsigned char` in stdafx.h
+#pragma push_macro("byte")
+#undef byte
 #include "stb_vorbis.h"
 
 #define MA_NO_DSOUND
 #define MA_NO_WINMM
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
+#pragma pop_macro("byte")
 #include <vector>
 #include <memory>
 #include <mutex>
@@ -465,10 +472,10 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
         iSound, SoundName, szSoundName, x, y, z, volume, pitch);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/%s", (char*)szSoundName);
+    sprintf_s(basePath, sizeof(basePath), "Windows64Media/Sound/%s", (char*)szSoundName);
 
     char finalPath[256];
-    sprintf_s(finalPath, "%s.wav", basePath);
+    sprintf_s(finalPath, sizeof(finalPath), "%s.wav", basePath);
 
 	const char* extensions[] = { ".ogg", ".wav", ".mp3" };
 	size_t extCount = sizeof(extensions) / sizeof(extensions[0]);
@@ -477,12 +484,12 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
 	for (size_t extIdx = 0; extIdx < extCount; extIdx++)
 	{
 		char basePlusExt[256];
-		sprintf_s(basePlusExt, "%s%s", basePath, extensions[extIdx]);
+		sprintf_s(basePlusExt, sizeof(basePlusExt), "%s%s", basePath, extensions[extIdx]);
 		
 		DWORD attr = GetFileAttributesA(basePlusExt);
 		if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			sprintf_s(finalPath, "%s", basePlusExt);
+			sprintf_s(finalPath, sizeof(finalPath), "%s", basePlusExt);
 			found = true;
 			break;
 		}
@@ -497,7 +504,7 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
 			for (size_t i = 1; i < 32; i++)
 			{
 				char numberedPath[256];
-				sprintf_s(numberedPath, "%s%d%s", basePath, i, extensions[extIdx]);
+				sprintf_s(numberedPath, sizeof(numberedPath), "%s%d%s", basePath, i, extensions[extIdx]);
 				
 				DWORD attr = GetFileAttributesA(numberedPath);
 				if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY))
@@ -513,19 +520,19 @@ void SoundEngine::play(int iSound, float x, float y, float z, float volume, floa
 			for (size_t extIdx = 0; extIdx < extCount; extIdx++)
 			{
 				char numberedPath[256];
-				sprintf_s(numberedPath, "%s%d%s", basePath, chosen, extensions[extIdx]);
+				sprintf_s(numberedPath, sizeof(numberedPath), "%s%d%s", basePath, chosen, extensions[extIdx]);
 				
 				DWORD attr = GetFileAttributesA(numberedPath);
 				if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					sprintf_s(finalPath, "%s", numberedPath);
+					sprintf_s(finalPath, sizeof(finalPath), "%s", numberedPath);
 					found = true;
 					break;
 				}
 			}
 			if (!found)
 			{
-				sprintf_s(finalPath, "%s%d.wav", basePath, chosen);
+				sprintf_s(finalPath, sizeof(finalPath), "%s%d.wav", basePath, chosen);
 			}
 		}
 	}
@@ -599,17 +606,17 @@ void SoundEngine::playUI(int iSound, float volume, float pitch)
     strcat((char*)szSoundName, SoundName);
 
     char basePath[256];
-    sprintf_s(basePath, "Windows64Media/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
+    sprintf_s(basePath, sizeof(basePath), "Windows64Media/Sound/Minecraft/UI/%s", ConvertSoundPathToName(name));
 
     char finalPath[256];
-    sprintf_s(finalPath, "%s.wav", basePath);
+    sprintf_s(finalPath, sizeof(finalPath), "%s.wav", basePath);
 
 	const char* extensions[] = { ".ogg", ".wav", ".mp3" };
 	size_t count = sizeof(extensions) / sizeof(extensions[0]);
 	bool found = false;
 	for (size_t i = 0; i < count; i++)
 	{
-		sprintf_s(finalPath, "%s%s", basePath, extensions[i]);
+		sprintf_s(finalPath, sizeof(finalPath), "%s%s", basePath, extensions[i]);
 		if (FileExists(finalPath))
 		{
 			found = true;

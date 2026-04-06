@@ -98,7 +98,7 @@ typedef struct
 }
 AUDIO_INFO;
 
-#ifdef _WINDOWS64
+#if defined(_WINDOWS64) || defined(_LINUX64)
 struct MiniAudioSound
 {
     ma_sound sound;
