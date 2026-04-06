@@ -315,15 +315,127 @@ inline VOID GlobalMemoryStatus(LPMEMORYSTATUS lpBuffer)
 // --------------- Win32 string helpers ---------------
 #define _snprintf_s(buf, bufsz, count, fmt, ...) snprintf(buf, bufsz, fmt, ##__VA_ARGS__)
 #define _TRUNCATE ((size_t)-1)
-#define strncpy_s(dst, dstsz, src, cnt) strncpy(dst, src, (cnt) == _TRUNCATE ? (dstsz)-1 : (cnt))
-#define strcpy_s(dst, dstsz, src)       strncpy(dst, src, (dstsz)-1)
 #define sprintf_s(buf, sz, fmt, ...)    snprintf(buf, sz, fmt, ##__VA_ARGS__)
 #define sscanf_s                         sscanf
 #define fopen_s(fp, path, mode)         (*(fp) = fopen(path, mode), *(fp) ? 0 : errno)
-#define wcscpy_s(dst, dstsz, src)       wcsncpy(dst, src, (dstsz)-1)
-#define wcsncpy_s(dst, dstsz, src, cnt) wcsncpy(dst, src, (cnt) == _TRUNCATE ? (dstsz)-1 : (cnt))
 #define swprintf_s(buf, sz, fmt, ...)   swprintf(buf, sz, fmt, ##__VA_ARGS__)
 #define _wcsicmp                         wcscasecmp
+
+inline errno_t strcpy_s(char* dst, size_t dstsz, const char* src)
+{
+    if (dst == nullptr || dstsz == 0)
+        return EINVAL;
+    if (src == nullptr)
+    {
+        dst[0] = '\0';
+        return EINVAL;
+    }
+
+    const size_t len = strlen(src);
+    if (len >= dstsz)
+    {
+        dst[0] = '\0';
+        return ERANGE;
+    }
+
+    memcpy(dst, src, len + 1);
+    return 0;
+}
+
+template <size_t N>
+inline errno_t strcpy_s(char (&dst)[N], const char* src)
+{
+    return strcpy_s(dst, N, src);
+}
+
+inline errno_t strncpy_s(char* dst, size_t dstsz, const char* src, size_t cnt)
+{
+    if (dst == nullptr || dstsz == 0)
+        return EINVAL;
+    if (src == nullptr)
+    {
+        dst[0] = '\0';
+        return EINVAL;
+    }
+
+    size_t copyLen = (cnt == _TRUNCATE) ? strlen(src) : cnt;
+    if (copyLen > strlen(src))
+        copyLen = strlen(src);
+
+    if (copyLen >= dstsz)
+    {
+        dst[0] = '\0';
+        return ERANGE;
+    }
+
+    memcpy(dst, src, copyLen);
+    dst[copyLen] = '\0';
+    return 0;
+}
+
+template <size_t N>
+inline errno_t strncpy_s(char (&dst)[N], const char* src, size_t cnt)
+{
+    return strncpy_s(dst, N, src, cnt);
+}
+
+inline errno_t wcscpy_s(wchar_t* dst, size_t dstsz, const wchar_t* src)
+{
+    if (dst == nullptr || dstsz == 0)
+        return EINVAL;
+    if (src == nullptr)
+    {
+        dst[0] = L'\0';
+        return EINVAL;
+    }
+
+    const size_t len = wcslen(src);
+    if (len >= dstsz)
+    {
+        dst[0] = L'\0';
+        return ERANGE;
+    }
+
+    wmemcpy(dst, src, len + 1);
+    return 0;
+}
+
+template <size_t N>
+inline errno_t wcscpy_s(wchar_t (&dst)[N], const wchar_t* src)
+{
+    return wcscpy_s(dst, N, src);
+}
+
+inline errno_t wcsncpy_s(wchar_t* dst, size_t dstsz, const wchar_t* src, size_t cnt)
+{
+    if (dst == nullptr || dstsz == 0)
+        return EINVAL;
+    if (src == nullptr)
+    {
+        dst[0] = L'\0';
+        return EINVAL;
+    }
+
+    size_t copyLen = (cnt == _TRUNCATE) ? wcslen(src) : cnt;
+    if (copyLen > wcslen(src))
+        copyLen = wcslen(src);
+
+    if (copyLen >= dstsz)
+    {
+        dst[0] = L'\0';
+        return ERANGE;
+    }
+
+    wmemcpy(dst, src, copyLen);
+    dst[copyLen] = L'\0';
+    return 0;
+}
+
+template <size_t N>
+inline errno_t wcsncpy_s(wchar_t (&dst)[N], const wchar_t* src, size_t cnt)
+{
+    return wcsncpy_s(dst, N, src, cnt);
+}
 
 // WideChar conversion stubs (ASCII-safe for Phase 1)
 inline int WideCharToMultiByte(UINT cp, DWORD flags, LPCWSTR src, int srcLen,
