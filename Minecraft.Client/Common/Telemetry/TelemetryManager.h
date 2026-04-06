@@ -2,17 +2,11 @@
 
 #include "../../Common/UI/UIEnums.h"
 
-// On Linux64 the Sentient SDK is not available; stub its enum types as int
+// Linux64 reuses the shipped Windows64 telemetry enum declarations for the
+// shared client code, while the actual Sentient runtime remains stubbed.
 #ifdef _LINUX64
-typedef int ESen_FriendOrMatch;
-typedef int ESen_CompeteOrCoop;
-typedef int ESen_LevelExitStatus;
-typedef int ESen_MediaDestination;
-typedef int ESen_MediaType;
-typedef int ESen_UpsellID;
-typedef int ESen_UpsellOutcome;
-typedef int ETelemetryChallenges;
-static const ETelemetryChallenges eTelemetryChallenges_Unknown = 0;
+#include "../../Windows64/Sentient/SentientTelemetryCommon.h"
+#include "../../Windows64/Sentient/TelemetryEnum.h"
 #endif
 
 class CTelemetryManager
