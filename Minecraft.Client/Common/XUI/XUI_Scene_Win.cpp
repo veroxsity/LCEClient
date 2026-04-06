@@ -5,7 +5,7 @@
 #include "../../Minecraft.h"
 #include "../../Common/Tutorial/TutorialMode.h"
 #include "../../Font.h"
-#include "../../Minecraft.World/random.h"
+#include "../../Minecraft.World/Random.h"
 #include "../../Minecraft.World/SharedConstants.h"
 #include "../../Minecraft.World/StringHelpers.h"
 #include "../../MultiPlayerLocalPlayer.h"

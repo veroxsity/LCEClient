@@ -1,5 +1,5 @@
 #pragma once
-#include "random.h"
+#include "Random.h"
 
 class Math
 {

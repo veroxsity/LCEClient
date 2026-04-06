@@ -13,7 +13,7 @@
 #include "../../User.h"
 //#include "XUI_CreateLoad.h"
 #include "../../Minecraft.World/StringHelpers.h"
-#include "../../Minecraft.World/random.h"
+#include "../../Minecraft.World/Random.h"
 #include "../../MinecraftServer.h"
 #include "../../Minecraft.h"
 #include "../../Options.h"

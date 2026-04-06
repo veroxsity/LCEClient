@@ -124,7 +124,7 @@ typedef XUID GameSessionUID;
 #include "Mth.h"
 #include "StringHelpers.h"
 #include "ArrayWithLength.h"
-#include "random.h"
+#include "Random.h"
 #include "TilePos.h"
 #include "ChunkPos.h"
 #include "compression.h"

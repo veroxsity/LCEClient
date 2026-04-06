@@ -12,7 +12,7 @@
 #include "net.minecraft.world.damagesource.h"
 #include "net.minecraft.world.entity.monster.h"
 #include "net.minecraft.world.entity.ai.attributes.h"
-#include "random.h"
+#include "Random.h"
 #include "Animal.h"
 
 Animal::Animal(Level *level) : AgableMob( level )

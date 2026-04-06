@@ -29,7 +29,7 @@
 #include "../../Minecraft.World/compression.h"
 #include "../../Minecraft.World/OldChunkStorage.h"
 #include "../../Minecraft.World/net.minecraft.world.level.tile.h"
-#include "../../Minecraft.World/random.h"
+#include "../../Minecraft.World/Random.h"
 
 #include <stdio.h>
 #include <stdlib.h>

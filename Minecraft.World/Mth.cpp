@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Mth.h"
-#include "random.h"
+#include "Random.h"
 #include "StringHelpers.h"
 
 const int Mth::BIG_ENOUGH_INT = 1024;

@@ -166,7 +166,7 @@ typedef XUID GameSessionUID;
 #include "Minecraft.World/Class.h"
 #include "Minecraft.World/ArrayWithLength.h"
 #include "Minecraft.World/SharedConstants.h"
-#include "Minecraft.World/random.h"
+#include "Minecraft.World/Random.h"
 #include "Minecraft.World/compression.h"
 #include "Minecraft.World/PerformanceTimer.h"
 

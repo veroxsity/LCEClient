@@ -1,6 +1,6 @@
 #pragma once
 #include "AbstractContainerMenu.h"
-#include "random.h"
+#include "Random.h"
 
 class EnchantmentMenu : public AbstractContainerMenu
 {
