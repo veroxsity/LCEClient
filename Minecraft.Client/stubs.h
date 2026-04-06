@@ -1,5 +1,8 @@
 #pragma once
 
+// On Linux64 real GL functions come from GLEW — don't redeclare them here
+#ifndef _LINUX64
+
 
 
 const int GL_BYTE = 0;
@@ -118,6 +121,8 @@ void glMultiTexCoord2f(int, float, float);
 //1.8.2
 void glClientActiveTexture(int);
 void glActiveTexture(int);
+
+#endif // !_LINUX64 — end of GL function stubs
 
 class GL11
 {

@@ -30,6 +30,7 @@
 #include "Minecraft.World/IntCache.h"
 #include "Minecraft.World/Socket.h"
 #include "Minecraft.World/ThreadName.h"
+#include "Minecraft.World/Tile.h"
 
 // Globals
 SDL_Window*   g_pWindow  = nullptr;

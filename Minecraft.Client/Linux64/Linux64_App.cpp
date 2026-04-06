@@ -19,7 +19,7 @@ int  CConsoleMinecraftApp::LoadLocalTMSFile(WCHAR*, eFileExtensionType) { return
 int  CConsoleMinecraftApp::LoadLocalTMSFile(WCHAR*)     { return 0; }
 void CConsoleMinecraftApp::FreeLocalTMSFiles(eTMSFileType)       {}
 int  CConsoleMinecraftApp::GetLocalTMSFileIndex(WCHAR*,bool,eFileExtensionType) { return -1; }
-void CConsoleMinecraftApp::DefaultOptionsCallback(LPVOID) {}
+int CConsoleMinecraftApp::DefaultOptionsCallback(LPVOID, C_4JProfile::PROFILESETTINGS*, const int) { return 0; }
 
 void CConsoleMinecraftApp::TemporaryCreateGameStart() {
     app.setLevelGenerationOptions(nullptr);

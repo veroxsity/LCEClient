@@ -26,7 +26,7 @@ public:
     virtual void FreeLocalTMSFiles(eTMSFileType eType);
     virtual int  GetLocalTMSFileIndex(WCHAR* wchTMSFile, bool bFilenameIncludesExtension, eFileExtensionType eEXT=static_cast<eFileExtensionType>(0));
     virtual void ReadBannedList(int iPad, eTMSAction action=static_cast<eTMSAction>(0), bool bCallback=false) {}
-    static void DefaultOptionsCallback(LPVOID param);
+    static int DefaultOptionsCallback(LPVOID param, C_4JProfile::PROFILESETTINGS* settings, const int iPad);
     virtual void TemporaryCreateGameStart();
 };
 
