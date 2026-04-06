@@ -18,7 +18,7 @@
 // making bare 'byte' ambiguous. We #define byte to uint8_t so all
 // existing code works without modification, and std::byte stays
 // qualified as std::byte — no collision.
-#define byte uint8_t
+#define byte unsigned char
 #include <stddef.h>
 #include <string.h>
 #include <wchar.h>
