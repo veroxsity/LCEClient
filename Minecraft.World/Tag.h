@@ -1,13 +1,6 @@
 #pragma once
 #include <ostream>
 #include "InputOutputStream.h"
-
-// On Linux/GCC, 'using namespace std' pulls in std::byte which conflicts
-// with the codebase's unqualified 'byte'. Typedef it BEFORE the using directive.
-#ifdef _LINUX64
-typedef unsigned char byte;
-#endif
-
 using namespace std;
 
  

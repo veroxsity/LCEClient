@@ -11,6 +11,14 @@
 
 #include <stdint.h>
 #include <stddef.h>
+
+// The codebase uses 'byte' everywhere as 'unsigned char'.
+// In C++17, 'using namespace std' brings in std::byte (an enum class),
+// making bare 'byte' ambiguous. We #define byte to uint8_t so all
+// existing code works without modification, and std::byte stays
+// qualified as std::byte — no collision.
+#define byte uint8_t
+#include <stddef.h>
 #include <string.h>
 #include <wchar.h>
 #include <pthread.h>
