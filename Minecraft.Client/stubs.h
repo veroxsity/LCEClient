@@ -1,9 +1,6 @@
 #pragma once
 
-// On Linux64 real GL functions come from GLEW — don't redeclare them here
-#ifndef _LINUX64
-
-
+// GL constants needed on all platforms
 
 const int GL_BYTE = 0;
 const int GL_FLOAT = 0;
@@ -47,6 +44,9 @@ const int GL_AMBIENT_AND_DIFFUSE = 0;
 
 const int GL_TEXTURE1 = 0;
 const int GL_TEXTURE0 = 1;
+
+// GL function stubs — only on non-Linux (on Linux64 GLEW provides these)
+#ifndef _LINUX64
 
 void glFlush();
 void glTexGeni(int,int,int);
