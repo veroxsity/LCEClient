@@ -98,6 +98,10 @@ bool Mouse::isButtonDown(int button)
 }
 #endif
 
+// On Linux64, GLEW + real GL provide all standard GL functions.
+// These empty stubs are only needed on Windows where GL calls are faked.
+#ifndef _LINUX64
+
 void glReadPixels(int,int, int, int, int, int, ByteBuffer *)
 {
 }
@@ -194,6 +198,8 @@ void glFlush()
 void glTexGeni(int,int,int)
 {
 }
+
+#endif // !_LINUX64
 
 #ifdef _XBOX
 // 4J Stu - Added these to stop us needing to pull in loads of media libraries just to use Qnet
