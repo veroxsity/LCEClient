@@ -46,7 +46,9 @@ typedef unsigned long long  ULONGLONG;
 typedef float               FLOAT;
 typedef int                 BOOL;
 typedef void*               LPVOID;
+typedef void*               PVOID;
 typedef const wchar_t*      LPCWSTR;
+typedef const char*         LPCSTR;
 
 // Pointer-sized types
 typedef uintptr_t           ULONG_PTR;
@@ -215,6 +217,7 @@ inline DWORD GetFileAttributesA(LPCSTR path) {
 // --------------- D3D forward decls (headers reference these) ---------------
 struct ID3D11Device;
 struct ID3D11DeviceContext;
+struct ID3D11Buffer;
 struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
@@ -222,6 +225,32 @@ struct ID3D11ShaderResourceView;
 struct ID3D11Texture2D;
 typedef struct { long left, top, right, bottom; } D3D11_RECT;
 typedef D3D11_RECT RECT;
+
+// D3D11 blend enums used as GL constant equivalents in 4J_Render.h
+enum D3D11_BLEND {
+    D3D11_BLEND_ZERO             = 1,
+    D3D11_BLEND_ONE              = 2,
+    D3D11_BLEND_SRC_COLOR        = 3,
+    D3D11_BLEND_INV_SRC_COLOR    = 4,
+    D3D11_BLEND_SRC_ALPHA        = 5,
+    D3D11_BLEND_INV_SRC_ALPHA    = 6,
+    D3D11_BLEND_DEST_ALPHA       = 7,
+    D3D11_BLEND_INV_DEST_ALPHA   = 8,
+    D3D11_BLEND_DEST_COLOR       = 9,
+    D3D11_BLEND_INV_DEST_COLOR   = 10,
+    D3D11_BLEND_BLEND_FACTOR     = 14,
+    D3D11_BLEND_INV_BLEND_FACTOR = 15,
+};
+enum D3D11_COMPARISON_FUNC {
+    D3D11_COMPARISON_NEVER         = 1,
+    D3D11_COMPARISON_LESS          = 2,
+    D3D11_COMPARISON_EQUAL         = 3,
+    D3D11_COMPARISON_LESS_EQUAL    = 4,
+    D3D11_COMPARISON_GREATER       = 5,
+    D3D11_COMPARISON_NOT_EQUAL     = 6,
+    D3D11_COMPARISON_GREATER_EQUAL = 7,
+    D3D11_COMPARISON_ALWAYS        = 8,
+};
 
 // --------------- Iggy no-ops ---------------
 inline void IggyFlushInstalledFonts() {}
