@@ -12,6 +12,7 @@ typedef int ESen_MediaType;
 typedef int ESen_UpsellID;
 typedef int ESen_UpsellOutcome;
 typedef int ETelemetryChallenges;
+static const ETelemetryChallenges eTelemetryChallenges_Unknown = 0;
 #endif
 
 class CTelemetryManager
