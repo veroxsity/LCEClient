@@ -22,6 +22,11 @@ target_include_directories(Minecraft.World
   PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/x64headers"
 )
+
+# Linux64: explicitly add repo root to compiler flags to ensure PCH picks it up
+if(PLATFORM_NAME STREQUAL "Linux64")
+  target_compile_options(Minecraft.World PRIVATE -I${CMAKE_SOURCE_DIR})
+endif()
 target_compile_definitions(Minecraft.World PRIVATE
   ${MINECRAFT_SHARED_DEFINES}
   _LIB

@@ -39,6 +39,11 @@ target_include_directories(Minecraft.Client PRIVATE
   "${CMAKE_SOURCE_DIR}/include/"
   "${CMAKE_SOURCE_DIR}"
 )
+
+# Linux64: explicitly add repo root to compiler flags to ensure PCH picks it up
+if(PLATFORM_NAME STREQUAL "Linux64")
+  target_compile_options(Minecraft.Client PRIVATE -I${CMAKE_SOURCE_DIR})
+endif()
 target_compile_definitions(Minecraft.Client PRIVATE
   ${MINECRAFT_SHARED_DEFINES}
 )
