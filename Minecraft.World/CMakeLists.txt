@@ -18,8 +18,7 @@ target_include_directories(Minecraft.World
   "${CMAKE_BINARY_DIR}/generated/"
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${CMAKE_SOURCE_DIR}/include/"
-  # Linux64: allow cross-directory includes like ../Minecraft.Client/Common/...
-  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:${CMAKE_SOURCE_DIR}>
+  "${CMAKE_SOURCE_DIR}"
   PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/x64headers"
 )
