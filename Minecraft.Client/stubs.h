@@ -148,22 +148,21 @@ void glDeleteLists(int,int);
 void glTexImage2D(int,int,int,int,int,int,int,int,ByteBuffer *);
 void glDeleteTextures(IntBuffer *);
 void glCallLists(IntBuffer *);
-void glGenQueriesARB(IntBuffer *);
 void glColorMask(bool,bool,bool,bool);
-void glBeginQueryARB(int,int);
-void glEndQueryARB(int);
-void glGetQueryObjectuARB(int,int,IntBuffer *);
 void gluPerspective(float,float,float,float);
 void glAlphaFunc(int,float);
 void glOrtho(float,float,float,float,float,float);
 void glFogi(int,int);
 void glFogf(int,float);
 void glFog(int,FloatBuffer *);
-void glClientActiveTexture(int);
-void glActiveTexture(int);
-void glMultiTexCoord2f(int,float,float);
+
+// These are provided by GLEW as macro->function-pointer, so no declaration needed:
+// glGenQueriesARB, glBeginQueryARB, glEndQueryARB, glGetQueryObjectuARB
+// glClientActiveTexture, glActiveTexture, glMultiTexCoord2f
 
 #endif // _LINUX64
+
+#ifndef _LINUX64
 
 class GL11
 {
@@ -182,6 +181,25 @@ public:
 	static void glBufferDataARB(int, ByteBuffer *, int) {}
 	static void glGenBuffersARB(IntBuffer *) {}
 };
+
+#else // _LINUX64
+
+// On Linux, GL11 and ARBVertexBufferObject use real GL constants from GLEW
+class GL11
+{
+public:
+	static void glShadeModel(int) {};
+};
+
+class ARBVertexBufferObject
+{
+public:
+	static void glBindBufferARB(int, int) {}
+	static void glBufferDataARB(int, ByteBuffer *, int) {}
+	static void glGenBuffersARB(IntBuffer *) {}
+};
+
+#endif // _LINUX64
 
 class Level;
 class Player;
