@@ -90,7 +90,16 @@ void UIControl_Base::setAllPossibleLabels(int labelCount, wchar_t labels[][256])
 
 	for(unsigned int i = 0; i < labelCount; ++i)
 	{
+#ifdef _LINUX64
+		// wchar_t is 4 bytes on Linux, IggyUTF16 is 2 bytes — need to convert
+		size_t len = wcslen(labels[i]);
+		IggyUTF16* converted = new IggyUTF16[len + 1];
+		for (size_t j = 0; j <= len; ++j)
+			converted[j] = static_cast<IggyUTF16>(labels[i][j]);
+		stringVal[i].string = converted;
+#else
 		stringVal[i].string = static_cast<IggyUTF16 *>(labels[i]);
+#endif
 		stringVal[i].length = wcslen(labels[i]);
 		value[i].type = IGGY_DATATYPE_string_UTF16;
 		value[i].string16 = stringVal[i];
