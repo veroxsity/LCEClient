@@ -12,6 +12,11 @@ if(NOT COPY_SOURCE OR NOT COPY_DEST)
   message(FATAL_ERROR "COPY_SOURCE and COPY_DEST must be set.")
 endif()
 
+if(NOT EXISTS "${COPY_SOURCE}")
+  message(STATUS "Skipping missing asset folder: ${COPY_SOURCE}")
+  return()
+endif()
+
 # Replace "|" with ";" to convert the exclusion patterns back into a list
 if(EXCLUDE_FILES)
   string(REPLACE "|" ";" EXCLUDE_FILES "${EXCLUDE_FILES}")
@@ -22,6 +27,7 @@ if(EXCLUDE_FOLDERS)
 endif()
 
 message(STATUS "Copying from ${COPY_SOURCE} to ${COPY_DEST}")
+file(MAKE_DIRECTORY "${COPY_DEST}")
 
 if(CMAKE_HOST_WIN32)
   set(robocopy_args

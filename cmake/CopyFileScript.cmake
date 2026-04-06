@@ -11,6 +11,23 @@ endif()
 
 string(REPLACE "|" ";" COPY_SOURCE "${COPY_SOURCE}")
 
+set(EXISTING_COPY_SOURCE "")
+foreach(filepath IN LISTS COPY_SOURCE)
+  if(EXISTS "${filepath}")
+    list(APPEND EXISTING_COPY_SOURCE "${filepath}")
+  else()
+    message(STATUS "Skipping missing asset file: ${filepath}")
+  endif()
+endforeach()
+
+if(NOT EXISTING_COPY_SOURCE)
+  message(STATUS "No asset files to copy to ${COPY_DEST}")
+  return()
+endif()
+
+set(COPY_SOURCE "${EXISTING_COPY_SOURCE}")
+file(MAKE_DIRECTORY "${COPY_DEST}")
+
 if(CMAKE_HOST_WIN32)
   # Group files by parent directory so we can batch them into single robocopy calls
   set(dir_file_map "")
