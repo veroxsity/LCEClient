@@ -6,6 +6,89 @@
 #include "Minecraft.World/net.minecraft.world.level.tile.h"
 #include "Minecraft.World/TilePos.h"
 
+#if defined(_LINUX64)
+namespace
+{
+void MultiplyMatrix4x4RowMajor(const float* lhs, const float* rhs, float* out)
+{
+    for (int row = 0; row < 4; ++row)
+    {
+        for (int col = 0; col < 4; ++col)
+        {
+            out[row * 4 + col] =
+                lhs[row * 4 + 0] * rhs[0 * 4 + col] +
+                lhs[row * 4 + 1] * rhs[1 * 4 + col] +
+                lhs[row * 4 + 2] * rhs[2 * 4 + col] +
+                lhs[row * 4 + 3] * rhs[3 * 4 + col];
+        }
+    }
+}
+
+bool InvertMatrix4x4RowMajor(const float* matrix, float* inverse)
+{
+    double augmented[4][8] = {};
+
+    for (int row = 0; row < 4; ++row)
+    {
+        for (int col = 0; col < 4; ++col)
+            augmented[row][col] = matrix[row * 4 + col];
+
+        augmented[row][row + 4] = 1.0;
+    }
+
+    for (int pivotCol = 0; pivotCol < 4; ++pivotCol)
+    {
+        int pivotRow = pivotCol;
+        double pivotValue = fabs(augmented[pivotRow][pivotCol]);
+        for (int row = pivotCol + 1; row < 4; ++row)
+        {
+            const double candidate = fabs(augmented[row][pivotCol]);
+            if (candidate > pivotValue)
+            {
+                pivotRow = row;
+                pivotValue = candidate;
+            }
+        }
+
+        if (pivotValue < 1.0e-8)
+            return false;
+
+        if (pivotRow != pivotCol)
+        {
+            for (int col = 0; col < 8; ++col)
+            {
+                const double temp = augmented[pivotCol][col];
+                augmented[pivotCol][col] = augmented[pivotRow][col];
+                augmented[pivotRow][col] = temp;
+            }
+        }
+
+        const double scale = augmented[pivotCol][pivotCol];
+        for (int col = 0; col < 8; ++col)
+            augmented[pivotCol][col] /= scale;
+
+        for (int row = 0; row < 4; ++row)
+        {
+            if (row == pivotCol)
+                continue;
+
+            const double factor = augmented[row][pivotCol];
+            for (int col = 0; col < 8; ++col)
+                augmented[row][col] -= factor * augmented[pivotCol][col];
+        }
+    }
+
+    for (int row = 0; row < 4; ++row)
+    {
+        for (int col = 0; col < 4; ++col)
+            inverse[row * 4 + col] = static_cast<float>(augmented[row][col + 4]);
+    }
+
+    return true;
+}
+}
+#endif
+
 float Camera::xPlayerOffs = 0.0f;
 float Camera::yPlayerOffs = 0.0f;
 float Camera::zPlayerOffs = 0.0f;
@@ -40,6 +123,25 @@ void Camera::prepare(shared_ptr<Player> player, bool mirror)
 
 	// Xbox conversion here... note that we don't bother getting the viewport as this is just working out how to get a (0,0,0) point in clip space to pass into the inverted
 	// combined model/view/projection matrix, so we just need to get this matrix and get its translation as an equivalent.
+#if defined(_LINUX64)
+    float final[16];
+    float inverse[16];
+
+    MultiplyMatrix4x4RowMajor(modelview->_getDataPointer(), projection->_getDataPointer(), final);
+
+    if (InvertMatrix4x4RowMajor(final, inverse) && fabsf(inverse[15]) > 1.0e-8f)
+    {
+        xPlayerOffs = inverse[12] / inverse[15];
+        yPlayerOffs = inverse[13] / inverse[15];
+        zPlayerOffs = inverse[14] / inverse[15];
+    }
+    else
+    {
+        xPlayerOffs = 0.0f;
+        yPlayerOffs = 0.0f;
+        zPlayerOffs = 0.0f;
+    }
+#else
 	XMMATRIX _modelview, _proj, _final, _invert;
 	XMVECTOR _det;
 	XMFLOAT4 trans;
