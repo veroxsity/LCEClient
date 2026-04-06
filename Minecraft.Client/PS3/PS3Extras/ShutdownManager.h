@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _SHUTDOWN_MANAGER_H
+#define _SHUTDOWN_MANAGER_H
 
 class ShutdownManager
 {
@@ -45,3 +47,4 @@ private:
 	static void StorageManagerCompleteFn();
 #endif
 };
+#endif // _SHUTDOWN_MANAGER_H
