@@ -18,7 +18,7 @@
 #include "EntityPos.h"
 #include "Entity.h"
 #include "SoundTypes.h"
-#include "../minecraft.Client/HumanoidModel.h"
+#include "../Minecraft.Client/HumanoidModel.h"
 #include "Minecraft.Client/MinecraftServer.h"
 #include "Minecraft.Client/MultiPlayerLevel.h"
 #include "Minecraft.Client/MultiPlayerLocalPlayer.h"
