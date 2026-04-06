@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <time.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -95,6 +96,20 @@ typedef int64_t             INT64;
 typedef uint64_t            UINT64;
 typedef uint32_t            UINT32;
 typedef int32_t             INT32;
+typedef int32_t             __int32;
+typedef uint32_t            __uint32;
+typedef FILETIME*           PFILETIME;
+typedef FILETIME*           LPFILETIME;
+typedef struct _SYSTEMTIME {
+    WORD wYear;
+    WORD wMonth;
+    WORD wDayOfWeek;
+    WORD wDay;
+    WORD wHour;
+    WORD wMinute;
+    WORD wSecond;
+    WORD wMilliseconds;
+} SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
 
 // HRESULT / success/failure
 typedef long                HRESULT;
@@ -170,6 +185,17 @@ typedef HANDLE              HTHREAD;
 
 #define INVALID_FILE_SIZE ((DWORD)-1)
 
+#define PAGE_NOACCESS          0x01
+#define PAGE_READONLY          0x02
+#define PAGE_READWRITE         0x04
+#define PAGE_WRITECOMBINE     0x400
+
+#define MEM_COMMIT           0x1000
+#define MEM_RESERVE          0x2000
+#define MEM_DECOMMIT         0x4000
+#define MEM_RELEASE          0x8000
+#define MEM_LARGE_PAGES  0x20000000
+
 #define WAIT_OBJECT_0 0
 #define WAIT_ABANDONED 0x00000080L
 #define WAIT_TIMEOUT 258L
@@ -194,6 +220,13 @@ typedef HANDLE              HTHREAD;
 #define THREAD_PRIORITY_ERROR_RETURN    MAXLONG
 #define THREAD_PRIORITY_TIME_CRITICAL   THREAD_BASE_PRIORITY_LOWRT
 #define THREAD_PRIORITY_IDLE            THREAD_BASE_PRIORITY_IDLE
+
+#define MAXUINT_PTR  (~((uintptr_t)0))
+#define MAXINT_PTR   ((intptr_t)(MAXUINT_PTR >> 1))
+#define MININT_PTR   (~MAXINT_PTR)
+#define MAXULONG_PTR (~((ULONG_PTR)0))
+#define MAXLONG_PTR  ((LONG_PTR)(MAXULONG_PTR >> 1))
+#define MINLONG_PTR  (~MAXLONG_PTR)
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(x) (void)(x)
@@ -291,6 +324,100 @@ inline ULONGLONG GetTickCount64() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000ULL;
+}
+inline LPVOID VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect) {
+    (void)flProtect;
+    if ((flAllocationType & MEM_RESERVE) != 0 && lpAddress == nullptr) {
+        void* memory = nullptr;
+        if (posix_memalign(&memory, 4096, dwSize) != 0) {
+            return nullptr;
+        }
+        return memory;
+    }
+    if ((flAllocationType & MEM_COMMIT) != 0) {
+        return lpAddress;
+    }
+    return lpAddress;
+}
+inline BOOL VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType) {
+    (void)dwSize;
+    if (!lpAddress) return FALSE;
+    if ((dwFreeType & (MEM_DECOMMIT | MEM_RELEASE)) != 0) {
+        free(lpAddress);
+    }
+    return TRUE;
+}
+inline VOID GetSystemTime(LPSYSTEMTIME outTime) {
+    if (!outTime) return;
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    time_t seconds = ts.tv_sec;
+    struct tm utcTime;
+    gmtime_r(&seconds, &utcTime);
+    outTime->wYear = static_cast<WORD>(utcTime.tm_year + 1900);
+    outTime->wMonth = static_cast<WORD>(utcTime.tm_mon + 1);
+    outTime->wDayOfWeek = static_cast<WORD>(utcTime.tm_wday);
+    outTime->wDay = static_cast<WORD>(utcTime.tm_mday);
+    outTime->wHour = static_cast<WORD>(utcTime.tm_hour);
+    outTime->wMinute = static_cast<WORD>(utcTime.tm_min);
+    outTime->wSecond = static_cast<WORD>(utcTime.tm_sec);
+    outTime->wMilliseconds = static_cast<WORD>(ts.tv_nsec / 1000000L);
+}
+inline VOID GetLocalTime(LPSYSTEMTIME outTime) {
+    if (!outTime) return;
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    time_t seconds = tv.tv_sec;
+    struct tm localTime;
+    localtime_r(&seconds, &localTime);
+    outTime->wYear = static_cast<WORD>(localTime.tm_year + 1900);
+    outTime->wMonth = static_cast<WORD>(localTime.tm_mon + 1);
+    outTime->wDayOfWeek = static_cast<WORD>(localTime.tm_wday);
+    outTime->wDay = static_cast<WORD>(localTime.tm_mday);
+    outTime->wHour = static_cast<WORD>(localTime.tm_hour);
+    outTime->wMinute = static_cast<WORD>(localTime.tm_min);
+    outTime->wSecond = static_cast<WORD>(localTime.tm_sec);
+    outTime->wMilliseconds = static_cast<WORD>(tv.tv_usec / 1000);
+}
+inline BOOL SystemTimeToFileTime(CONST SYSTEMTIME* systemTime, LPFILETIME fileTime) {
+    if (!systemTime || !fileTime) return FALSE;
+    struct tm utcTime = {};
+    utcTime.tm_year = systemTime->wYear - 1900;
+    utcTime.tm_mon = systemTime->wMonth - 1;
+    utcTime.tm_mday = systemTime->wDay;
+    utcTime.tm_hour = systemTime->wHour;
+    utcTime.tm_min = systemTime->wMinute;
+    utcTime.tm_sec = systemTime->wSecond;
+    time_t seconds = timegm(&utcTime);
+    if (seconds < 0) return FALSE;
+    const uint64_t windowsEpochOffsetSeconds = 11644473600ULL;
+    const uint64_t ticks =
+        (static_cast<uint64_t>(seconds) + windowsEpochOffsetSeconds) * 10000000ULL +
+        static_cast<uint64_t>(systemTime->wMilliseconds) * 10000ULL;
+    fileTime->dwLowDateTime = static_cast<DWORD>(ticks & 0xFFFFFFFFULL);
+    fileTime->dwHighDateTime = static_cast<DWORD>((ticks >> 32) & 0xFFFFFFFFULL);
+    return TRUE;
+}
+inline BOOL FileTimeToSystemTime(CONST FILETIME* fileTime, LPSYSTEMTIME systemTime) {
+    if (!fileTime || !systemTime) return FALSE;
+    const uint64_t ticks =
+        (static_cast<uint64_t>(fileTime->dwHighDateTime) << 32) |
+        static_cast<uint64_t>(fileTime->dwLowDateTime);
+    const uint64_t windowsEpochOffsetSeconds = 11644473600ULL;
+    const uint64_t totalSeconds = ticks / 10000000ULL;
+    if (totalSeconds < windowsEpochOffsetSeconds) return FALSE;
+    time_t unixSeconds = static_cast<time_t>(totalSeconds - windowsEpochOffsetSeconds);
+    struct tm utcTime;
+    gmtime_r(&unixSeconds, &utcTime);
+    systemTime->wYear = static_cast<WORD>(utcTime.tm_year + 1900);
+    systemTime->wMonth = static_cast<WORD>(utcTime.tm_mon + 1);
+    systemTime->wDayOfWeek = static_cast<WORD>(utcTime.tm_wday);
+    systemTime->wDay = static_cast<WORD>(utcTime.tm_mday);
+    systemTime->wHour = static_cast<WORD>(utcTime.tm_hour);
+    systemTime->wMinute = static_cast<WORD>(utcTime.tm_min);
+    systemTime->wSecond = static_cast<WORD>(utcTime.tm_sec);
+    systemTime->wMilliseconds = static_cast<WORD>((ticks % 10000000ULL) / 10000ULL);
+    return TRUE;
 }
 inline BOOL QueryPerformanceFrequency(LARGE_INTEGER* outFrequency) {
     if (!outFrequency) return FALSE;

@@ -128,13 +128,17 @@ endif()
 set(BUILDVER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateBuildVer.cmake")
 set(BUILDVER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/Common/BuildVer.h")
 
-add_custom_target(GenerateBuildVer
+add_custom_command(
+  OUTPUT "${BUILDVER_OUTPUT}"
   COMMAND ${CMAKE_COMMAND}
     "-DOUTPUT_FILE=${BUILDVER_OUTPUT}"
     -P "${BUILDVER_SCRIPT}"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   COMMENT "Generating BuildVer.h..."
   VERBATIM
 )
+
+add_custom_target(GenerateBuildVer DEPENDS "${BUILDVER_OUTPUT}")
 
 add_dependencies(Minecraft.World GenerateBuildVer)
 add_dependencies(Minecraft.Client GenerateBuildVer)

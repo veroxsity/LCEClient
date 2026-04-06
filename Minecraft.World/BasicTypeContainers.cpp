@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "BasicTypeContainers.h"
+#include <cfloat>
 #include <limits>
 
 
