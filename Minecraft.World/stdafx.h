@@ -87,7 +87,9 @@ typedef XUID GameSessionUID;
 #else
 #include <unordered_map>
 #include <unordered_set>
+#ifndef _LINUX64
 #include <sal.h>
+#endif
 #include <vector>
 #endif //__PS3__
 
@@ -162,6 +164,11 @@ void MemSect(int sect);
 #include "..\Minecraft.Client\Windows64\4JLibs\inc\4J_Render.h"
 #include "..\Minecraft.Client\Windows64\4JLibs\inc\4J_Storage.h"
 #include "..\Minecraft.Client\Windows64\4JLibs\inc\4J_Input.h"
+#elif defined _LINUX64
+#include "../Minecraft.Client/Linux64/4JLibs/inc/4J_Profile.h"
+#include "../Minecraft.Client/Linux64/4JLibs/inc/4J_Render.h"
+#include "../Minecraft.Client/Linux64/4JLibs/inc/4J_Storage.h"
+#include "../Minecraft.Client/Linux64/4JLibs/inc/4J_Input.h"
 #elif defined __PSVITA__
 #include "..\Minecraft.Client\PSVita\4JLibs\inc\4J_Profile.h"
 #include "..\Minecraft.Client\PSVita\4JLibs\inc\4J_Render.h"
@@ -219,6 +226,9 @@ void MemSect(int sect);
 #include "..\Minecraft.Client\Windows64Media\strings.h"
 #include "..\Minecraft.Client\Windows64\Sentient\SentientTelemetryCommon.h"
 #include "..\Minecraft.Client\Windows64\Sentient\MinecraftTelemetry.h"
+
+#elif defined _LINUX64
+#include "../Minecraft.Client/Linux64/Linux64_App.h"
 
 #elif defined __PSVITA__
 #include "..\Minecraft.Client\PSVita\PSVita_App.h"
