@@ -217,27 +217,38 @@ void C4JRender::TextureDynamicUpdateStart() {}
 void C4JRender::TextureDynamicUpdateEnd() {}
 HRESULT C4JRender::LoadTextureData(const char *, D3DXIMAGE_INFO *pSrcInfo, int **ppDataOut)
 {
+	// Phase 2 stub: return a 1x1 magenta dummy pixel so texture loading
+	// doesn't assert on zero-size arrays. Real loading in Phase 3.
 	if (pSrcInfo != nullptr)
 	{
 		ZeroMemory(pSrcInfo, sizeof(*pSrcInfo));
+		pSrcInfo->Width = 1;
+		pSrcInfo->Height = 1;
 	}
 	if (ppDataOut != nullptr)
 	{
-		*ppDataOut = nullptr;
+		int *pixel = new int[1];
+		pixel[0] = static_cast<int>(0xFFFF00FF); // ARGB magenta
+		*ppDataOut = pixel;
 	}
-	return E_FAIL;
+	return ERROR_SUCCESS;
 }
 HRESULT C4JRender::LoadTextureData(BYTE *, DWORD, D3DXIMAGE_INFO *pSrcInfo, int **ppDataOut)
 {
+	// Phase 2 stub: return a 1x1 magenta dummy pixel
 	if (pSrcInfo != nullptr)
 	{
 		ZeroMemory(pSrcInfo, sizeof(*pSrcInfo));
+		pSrcInfo->Width = 1;
+		pSrcInfo->Height = 1;
 	}
 	if (ppDataOut != nullptr)
 	{
-		*ppDataOut = nullptr;
+		int *pixel = new int[1];
+		pixel[0] = static_cast<int>(0xFFFF00FF); // ARGB magenta
+		*ppDataOut = pixel;
 	}
-	return E_FAIL;
+	return ERROR_SUCCESS;
 }
 HRESULT C4JRender::SaveTextureData(const char *, D3DXIMAGE_INFO *, int *) { return E_FAIL; }
 HRESULT C4JRender::SaveTextureDataToMemory(void *, int, int *, int, int, int *) { return E_FAIL; }
