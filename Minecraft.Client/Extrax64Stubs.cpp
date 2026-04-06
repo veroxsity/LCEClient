@@ -15,13 +15,15 @@
 #include "Durango/Social/SocialManager.h"
 #include "Durango/Sentient/DynamicConfigurations.h"
 #include "Durango/DurangoExtras/xcompress.h"
-#elif defined _WINDOWS64
+#elif defined _WINDOWS64 || defined _LINUX64
 #include "Windows64/Sentient/SentientManager.h"
 #include "StatsCounter.h"
 #include "Windows64/Social/SocialManager.h"
 #include "Windows64/Sentient/DynamicConfigurations.h"
+#ifdef _WINDOWS64
 #include "Windows64/Network/WinsockNetLayer.h"
 #include "Windows64/Windows64_Xuid.h"
+#endif
 #elif defined __PSVITA__
 #include "PSVita/Sentient/SentientManager.h"
 #include "StatsCounter.h"
