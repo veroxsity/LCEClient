@@ -5579,7 +5579,7 @@ void CMinecraftApp::HandleDLC(DLCPack *pack)
 {
 	DWORD dwFilesProcessed = 0;
 #ifndef _XBOX
-#if defined(__PS3__) || defined(__ORBIS__) || defined(_WINDOWS64) || defined (__PSVITA__)
+#if defined(__PS3__) || defined(__ORBIS__) || defined(_WINDOWS64) || defined(_LINUX64) || defined (__PSVITA__)
 	std::vector<std::string> dlcFilenames;
 #elif defined _DURANGO
 	std::vector<std::wstring> dlcFilenames;
@@ -5901,7 +5901,7 @@ int CMinecraftApp::GetTPConfigVal(WCHAR *pwchDataFile)
 
 	return -1;
 }
-#elif defined _WINDOWS64
+#elif defined _WINDOWS64 || defined _LINUX64
 int CMinecraftApp::GetTPConfigVal(WCHAR *pwchDataFile)
 {
 	return -1;
@@ -6970,7 +6970,7 @@ HRESULT CMinecraftApp::RegisterConfigValues(WCHAR *pType, int iValue)
 	return hr;
 }
 
-#if (defined _XBOX || defined _WINDOWS64)
+#if (defined _XBOX || defined _WINDOWS64 || defined _LINUX64)
 HRESULT CMinecraftApp::RegisterDLCData(WCHAR *pType, WCHAR *pBannerName, int iGender, uint64_t ullOfferID_Full, uint64_t ullOfferID_Trial, WCHAR *pFirstSkin, unsigned int uiSortIndex, int iConfig, WCHAR *pDataFile)
 {
 	HRESULT hr=S_OK;

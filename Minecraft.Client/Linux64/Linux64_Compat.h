@@ -967,3 +967,196 @@ inline wchar_t* _itow(int value, wchar_t* buffer, int radix)
     return buffer;
 }
 #endif
+
+#ifndef _itoa_s
+inline errno_t _itoa_s(int value, char* buffer, size_t size, int radix)
+{
+    if (buffer == nullptr || size == 0)
+        return EINVAL;
+
+    if (radix == 10)
+        return snprintf(buffer, size, "%d", value) < 0 ? EINVAL : 0;
+
+    if (radix == 16)
+        return snprintf(buffer, size, "%x", static_cast<unsigned int>(value)) < 0 ? EINVAL : 0;
+
+    if (radix < 2 || radix > 36)
+    {
+        buffer[0] = '\0';
+        return EINVAL;
+    }
+
+    static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    char reversed[35];
+    int count = 0;
+
+    uint32_t magnitude = static_cast<uint32_t>(value);
+    const bool negative = value < 0;
+    if (negative)
+        magnitude = static_cast<uint32_t>(-(int64_t)value);
+
+    do
+    {
+        reversed[count++] = digits[magnitude % static_cast<uint32_t>(radix)];
+        magnitude /= static_cast<uint32_t>(radix);
+    } while (magnitude != 0);
+
+    size_t out = 0;
+    if (negative)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = '\0';
+            return ERANGE;
+        }
+        buffer[out++] = '-';
+    }
+
+    while (count > 0)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = '\0';
+            return ERANGE;
+        }
+        buffer[out++] = reversed[--count];
+    }
+
+    buffer[out] = '\0';
+    return 0;
+}
+#endif
+
+#ifndef _i64toa_s
+inline errno_t _i64toa_s(int64_t value, char* buffer, size_t size, int radix)
+{
+    if (buffer == nullptr || size == 0)
+        return EINVAL;
+
+    if (radix == 10)
+        return snprintf(buffer, size, "%lld", static_cast<long long>(value)) < 0 ? EINVAL : 0;
+
+    if (radix < 2 || radix > 36)
+    {
+        buffer[0] = '\0';
+        return EINVAL;
+    }
+
+    static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    char reversed[67];
+    int count = 0;
+
+    uint64_t magnitude = static_cast<uint64_t>(value);
+    const bool negative = value < 0;
+    if (negative)
+        magnitude = static_cast<uint64_t>(-(value + 1)) + 1;
+
+    do
+    {
+        reversed[count++] = digits[magnitude % static_cast<uint64_t>(radix)];
+        magnitude /= static_cast<uint64_t>(radix);
+    } while (magnitude != 0);
+
+    size_t out = 0;
+    if (negative)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = '\0';
+            return ERANGE;
+        }
+        buffer[out++] = '-';
+    }
+
+    while (count > 0)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = '\0';
+            return ERANGE;
+        }
+        buffer[out++] = reversed[--count];
+    }
+
+    buffer[out] = '\0';
+    return 0;
+}
+#endif
+
+#ifndef _itow_s
+inline errno_t _itow_s(int value, wchar_t* buffer, size_t size, int radix)
+{
+    if (buffer == nullptr || size == 0)
+        return EINVAL;
+
+    wchar_t temp[35];
+    if (_itow(value, temp, radix) == nullptr)
+    {
+        buffer[0] = L'\0';
+        return EINVAL;
+    }
+
+    const size_t required = wcslen(temp) + 1;
+    if (required > size)
+    {
+        buffer[0] = L'\0';
+        return ERANGE;
+    }
+
+    wcscpy(buffer, temp);
+    return 0;
+}
+#endif
+
+#ifndef _i64tow_s
+inline errno_t _i64tow_s(int64_t value, wchar_t* buffer, size_t size, int radix)
+{
+    if (buffer == nullptr || size == 0)
+        return EINVAL;
+
+    if (radix < 2 || radix > 36)
+    {
+        buffer[0] = L'\0';
+        return EINVAL;
+    }
+
+    static const wchar_t digits[] = L"0123456789abcdefghijklmnopqrstuvwxyz";
+    wchar_t reversed[67];
+    int count = 0;
+
+    uint64_t magnitude = static_cast<uint64_t>(value);
+    const bool negative = value < 0;
+    if (negative)
+        magnitude = static_cast<uint64_t>(-(value + 1)) + 1;
+
+    do
+    {
+        reversed[count++] = digits[magnitude % static_cast<uint64_t>(radix)];
+        magnitude /= static_cast<uint64_t>(radix);
+    } while (magnitude != 0);
+
+    size_t out = 0;
+    if (negative)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = L'\0';
+            return ERANGE;
+        }
+        buffer[out++] = L'-';
+    }
+
+    while (count > 0)
+    {
+        if (out + 1 >= size)
+        {
+            buffer[0] = L'\0';
+            return ERANGE;
+        }
+        buffer[out++] = reversed[--count];
+    }
+
+    buffer[out] = L'\0';
+    return 0;
+}
+#endif
