@@ -1,13 +1,14 @@
 #pragma once
 #include <ostream>
 #include "InputOutputStream.h"
-using namespace std;
 
-// On Linux/GCC, 'byte' is std::byte (C++17) which conflicts with the unqualified 'byte' used here.
-// Bring the typedef into scope explicitly.
+// On Linux/GCC, 'using namespace std' pulls in std::byte which conflicts
+// with the codebase's unqualified 'byte'. Typedef it BEFORE the using directive.
 #ifdef _LINUX64
 typedef unsigned char byte;
 #endif
+
+using namespace std;
 
  
 class Tag

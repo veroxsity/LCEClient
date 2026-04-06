@@ -6,10 +6,8 @@
 // Included via stdafx.h when _LINUX64 is defined.
 // ============================================================
 
-// Prevent std::byte from polluting the global namespace and conflicting
-// with the codebase's 'byte' typedef (unsigned char).
-// Must be defined before any standard library headers are included.
-#define __cpp_lib_byte 0
+// Prevent std::byte from polluting the global namespace — done via -D__cpp_lib_byte=0
+// in CMakeLists.txt. No action needed here.
 
 #include <stdint.h>
 #include <stddef.h>

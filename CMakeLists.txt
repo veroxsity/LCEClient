@@ -82,6 +82,8 @@ set(MINECRAFT_SHARED_DEFINES
   $<$<CONFIG:Debug>:_DEBUG>
   _CRT_NON_CONFORMING_SWPRINTFS
   _CRT_SECURE_NO_WARNINGS
+  # Linux/GCC: suppress std::byte to avoid conflicts with the codebase's 'byte' typedef
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:__cpp_lib_byte=0>
 )
 
 # Add platform-specific defines
