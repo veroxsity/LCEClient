@@ -1,6 +1,7 @@
 #pragma once
 
-// GL constants needed on all platforms
+// GL constants — on Windows these are fake stubs, on Linux GLEW provides real ones
+#ifndef _LINUX64
 
 const int GL_BYTE = 0;
 const int GL_FLOAT = 0;
@@ -37,6 +38,8 @@ const int GL_AMBIENT_AND_DIFFUSE = 0;
 
 const int GL_TEXTURE1 = 0;
 const int GL_TEXTURE0 = 1;
+
+#endif // !_LINUX64
 
 // On Linux64, GLEW (included via stdafx.h) provides all real GL function declarations.
 // We only need the project-specific wrappers that take FloatBuffer*/ByteBuffer*/IntBuffer*.
