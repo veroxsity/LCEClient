@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(MinecraftConsoles LANGUAGES C CXX RC ASM_MASM)
+if(WIN32)
+  project(MinecraftConsoles LANGUAGES C CXX RC ASM_MASM)
+else()
+  project(MinecraftConsoles LANGUAGES C CXX)
+endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,7 +22,9 @@ set(CMAKE_CONFIGURATION_TYPES
   "Release"
   CACHE STRING "" FORCE
 )
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 function(configure_compiler_target target)
   # MSVC and compatible compilers (like Clang-cl)
@@ -54,6 +60,14 @@ function(configure_compiler_target target)
     )
     target_link_options(${target} PRIVATE
       $<$<CONFIG:Release>:-flto>
+    )
+  endif()
+
+  # GCC (Linux)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${target} PRIVATE
+      $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C,CXX>>:-O0 -Wall -Wno-unused-result>
+      $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:C,CXX>>:-O2 -w>
     )
   endif()
 endfunction()
