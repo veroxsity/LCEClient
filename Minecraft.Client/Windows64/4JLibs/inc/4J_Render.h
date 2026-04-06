@@ -207,6 +207,9 @@ public:
 // Singleton
 extern C4JRender RenderManager;
 
+// On Linux64, GLEW provides all GL_* constants as macros — don't redefine them
+#ifndef _LINUX64
+
 // These things required for tex gen
 
 const int GL_S = 0;
@@ -383,8 +386,4 @@ const int GL_TRIANGLE_FAN = C4JRender::PRIMITIVE_TYPE_TRIANGLE_FAN;
 const int GL_TRIANGLE_STRIP = C4JRender::PRIMITIVE_TYPE_TRIANGLE_STRIP;
 
 #endif // !_LINUX64
-
-// Singleton
-extern C4JRender RenderManager;
-
 
