@@ -921,3 +921,42 @@ enum D3D11_COMPARISON_FUNC {
 #ifndef _wtoi
 inline int _wtoi(const wchar_t* s) { return (int)wcstol(s, nullptr, 10); }
 #endif
+
+#ifndef _itow
+inline wchar_t* _itow(int value, wchar_t* buffer, int radix)
+{
+    if (buffer == nullptr)
+        return nullptr;
+
+    if (radix < 2 || radix > 36)
+    {
+        buffer[0] = L'\0';
+        return buffer;
+    }
+
+    static const wchar_t digits[] = L"0123456789abcdefghijklmnopqrstuvwxyz";
+    wchar_t reversed[35];
+    int count = 0;
+
+    uint32_t magnitude = static_cast<uint32_t>(value);
+    const bool negative = value < 0;
+    if (negative)
+        magnitude = static_cast<uint32_t>(-(int64_t)value);
+
+    do
+    {
+        reversed[count++] = digits[magnitude % static_cast<uint32_t>(radix)];
+        magnitude /= static_cast<uint32_t>(radix);
+    } while (magnitude != 0);
+
+    int out = 0;
+    if (negative)
+        buffer[out++] = L'-';
+
+    while (count > 0)
+        buffer[out++] = reversed[--count];
+
+    buffer[out] = L'\0';
+    return buffer;
+}
+#endif
