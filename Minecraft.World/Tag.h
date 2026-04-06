@@ -3,6 +3,12 @@
 #include "InputOutputStream.h"
 using namespace std;
 
+// On Linux/GCC, 'byte' is std::byte (C++17) which conflicts with the unqualified 'byte' used here.
+// Bring the typedef into scope explicitly.
+#ifdef _LINUX64
+typedef unsigned char byte;
+#endif
+
  
 class Tag
 {
