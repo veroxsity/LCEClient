@@ -1,5 +1,7 @@
 #pragma once
 
+#include "iggy.h"
+
 struct SFontData;
 class CFontData;
 

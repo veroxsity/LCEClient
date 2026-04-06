@@ -1,5 +1,7 @@
 #pragma once
 
+#include "iggy.h"
+
 // This class for any name object in the flash scene
 class UIControl
 {
