@@ -46,6 +46,7 @@ typedef unsigned long long  ULONGLONG;
 typedef float               FLOAT;
 typedef int                 BOOL;
 typedef void*               LPVOID;
+typedef const wchar_t*      LPCWSTR;
 
 // Pointer-sized types
 typedef uintptr_t           ULONG_PTR;
@@ -53,6 +54,17 @@ typedef intptr_t            LONG_PTR;
 
 // FILETIME (Windows timestamp struct — stubbed as a 64-bit value)
 typedef struct { DWORD dwLowDateTime; DWORD dwHighDateTime; } FILETIME;
+
+// Windows high-resolution timer type (used by PerformanceTimer)
+typedef union { struct { DWORD LowPart; LONG HighPart; }; int64_t QuadPart; } LARGE_INTEGER;
+
+// ZeroMemory — Windows macro equivalent
+#define ZeroMemory(dest, size) memset(dest, 0, size)
+
+// __debugbreak — MSVC intrinsic, maps to GCC trap
+#ifndef __debugbreak
+#define __debugbreak() __builtin_trap()
+#endif
 
 typedef const void*         LPCVOID;
 typedef char*               LPSTR;
