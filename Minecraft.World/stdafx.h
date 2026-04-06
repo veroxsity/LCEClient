@@ -239,6 +239,7 @@ void MemSect(int sect);
 
 #elif defined _LINUX64
 #include "Minecraft.Client/Linux64/Linux64_App.h"
+#include "Minecraft.Client/Windows64Media/strings.h"
 
 #elif defined __PSVITA__
 #include "Minecraft.Client/PSVita/PSVita_App.h"
