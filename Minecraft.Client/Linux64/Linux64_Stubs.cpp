@@ -1091,6 +1091,11 @@ const int TileEntityDataPacket::TYPE_SKULL;
 // Missing static constant definitions — ODR-use requires these
 // ============================================================
 
+#include "Minecraft.World/RemoveEntitiesPacket.h"
+#include "Minecraft.World/Item.h"
+#include "Minecraft.World/Tile.h"
+#include "Minecraft.World/net.minecraft.world.level.tile.h"
+
 // RemoveEntitiesPacket
 const int RemoveEntitiesPacket::MAX_PER_PACKET;
 
