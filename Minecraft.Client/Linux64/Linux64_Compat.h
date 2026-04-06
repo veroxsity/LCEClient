@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/sysinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -109,6 +110,17 @@ typedef struct _SYSTEMTIME {
     WORD wSecond;
     WORD wMilliseconds;
 } SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
+
+typedef struct _MEMORYSTATUS {
+    DWORD dwLength;
+    DWORD dwMemoryLoad;
+    SIZE_T dwTotalPhys;
+    SIZE_T dwAvailPhys;
+    SIZE_T dwTotalPageFile;
+    SIZE_T dwAvailPageFile;
+    SIZE_T dwTotalVirtual;
+    SIZE_T dwAvailVirtual;
+} MEMORYSTATUS, *LPMEMORYSTATUS;
 
 // HRESULT / success/failure
 typedef long                HRESULT;
@@ -254,6 +266,35 @@ inline LPVOID TlsGetValue(DWORD idx)          { return pthread_getspecific((pthr
 inline BOOL  TlsSetValue(DWORD idx, LPVOID v) { return pthread_setspecific((pthread_key_t)idx, v) == 0; }
 
 inline void Sleep(DWORD ms) { usleep(ms * 1000); }
+
+inline VOID GlobalMemoryStatus(LPMEMORYSTATUS lpBuffer)
+{
+    if (lpBuffer == nullptr)
+        return;
+
+    struct sysinfo info;
+    memset(lpBuffer, 0, sizeof(*lpBuffer));
+    lpBuffer->dwLength = sizeof(*lpBuffer);
+
+    if (sysinfo(&info) != 0)
+        return;
+
+    const SIZE_T memUnit = static_cast<SIZE_T>(info.mem_unit);
+    const SIZE_T totalPhys = static_cast<SIZE_T>(info.totalram) * memUnit;
+    const SIZE_T availPhys = static_cast<SIZE_T>(info.freeram) * memUnit;
+    const SIZE_T totalPage = static_cast<SIZE_T>(info.totalswap) * memUnit;
+    const SIZE_T availPage = static_cast<SIZE_T>(info.freeswap) * memUnit;
+
+    lpBuffer->dwTotalPhys = totalPhys;
+    lpBuffer->dwAvailPhys = availPhys;
+    lpBuffer->dwTotalPageFile = totalPage;
+    lpBuffer->dwAvailPageFile = availPage;
+    lpBuffer->dwTotalVirtual = totalPhys + totalPage;
+    lpBuffer->dwAvailVirtual = availPhys + availPage;
+
+    if (totalPhys != 0)
+        lpBuffer->dwMemoryLoad = static_cast<DWORD>(((totalPhys - availPhys) * 100) / totalPhys);
+}
 
 // --------------- Win32 string helpers ---------------
 #define _snprintf_s(buf, bufsz, count, fmt, ...) snprintf(buf, bufsz, fmt, ##__VA_ARGS__)
