@@ -32,6 +32,14 @@ typedef unsigned long long  ULONGLONG;
 typedef float               FLOAT;
 typedef int                 BOOL;
 typedef void*               LPVOID;
+
+// Pointer-sized types
+typedef uintptr_t           ULONG_PTR;
+typedef intptr_t            LONG_PTR;
+
+// FILETIME (Windows timestamp struct — stubbed as a 64-bit value)
+typedef struct { DWORD dwLowDateTime; DWORD dwHighDateTime; } FILETIME;
+
 typedef const void*         LPCVOID;
 typedef char*               LPSTR;
 typedef const char*         LPCSTR;
@@ -105,6 +113,7 @@ typedef struct {
 } CRITICAL_SECTION;
 
 inline void InitializeCriticalSection(CRITICAL_SECTION* cs) { pthread_mutex_init(&cs->mutex, nullptr); }
+inline void InitializeCriticalSectionAndSpinCount(CRITICAL_SECTION* cs, DWORD) { pthread_mutex_init(&cs->mutex, nullptr); }
 inline void DeleteCriticalSection(CRITICAL_SECTION* cs)     { pthread_mutex_destroy(&cs->mutex); }
 inline void EnterCriticalSection(CRITICAL_SECTION* cs)      { pthread_mutex_lock(&cs->mutex); }
 inline void LeaveCriticalSection(CRITICAL_SECTION* cs)      { pthread_mutex_unlock(&cs->mutex); }
