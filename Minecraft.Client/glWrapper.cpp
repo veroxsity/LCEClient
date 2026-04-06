@@ -1,4 +1,11 @@
 #include "stdafx.h"
+
+// On Linux64, real OpenGL (via GLEW) provides all standard GL functions.
+// This entire file is the Windows D3D11 GL-wrapper layer that redirects GL calls
+// to RenderManager. It's excluded on Linux — the OpenGL renderer backend (Phase 3)
+// will provide the custom-signature wrappers (FloatBuffer*, IntBuffer*, etc.) instead.
+#ifndef _LINUX64
+
 #include "Minecraft.World/FloatBuffer.h"
 #include "Minecraft.World/IntBuffer.h"
 #include "Minecraft.World/ByteBuffer.h"
@@ -390,3 +397,5 @@ void glCullFace(int dir)
 {
 	RenderManager.StateSetFaceCullCW( dir == GL_BACK);
 }
+
+#endif // !_LINUX64
