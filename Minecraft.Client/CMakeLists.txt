@@ -37,6 +37,8 @@ target_include_directories(Minecraft.Client PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/Iggy/include"
   "${CMAKE_SOURCE_DIR}/include/"
+  # Linux64: allow cross-directory includes
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:"${CMAKE_SOURCE_DIR}">
 )
 target_compile_definitions(Minecraft.Client PRIVATE
   ${MINECRAFT_SHARED_DEFINES}
