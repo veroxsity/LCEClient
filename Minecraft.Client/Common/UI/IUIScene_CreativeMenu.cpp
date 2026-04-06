@@ -3,7 +3,7 @@
 
 #include "UI.h"
 #include "../../Minecraft.h"
-#include "../../MultiplayerLocalPlayer.h"
+#include "../../MultiPlayerLocalPlayer.h"
 #include "../../Minecraft.World/net.minecraft.world.inventory.h"
 #include "../../Minecraft.World/net.minecraft.world.level.tile.h"
 #include "../../Minecraft.World/net.minecraft.world.level.tile.entity.h"

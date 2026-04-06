@@ -53,7 +53,7 @@
 #include "StemTile_SPU.h"
 #include "VineTile_SPU.h"
 #include "MycelTile_SPU.h"
-#include "WaterlilyTile_SPU.h"
+#include "WaterLilyTile_SPU.h"
 #include "NetherStalkTile_SPU.h"
 #include "EnchantmentTableTile_SPU.h"
 #include "BrewingStandTile_SPU.h"

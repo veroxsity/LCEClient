@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../../Minecraft.World/Random.h"
+#include "../../Minecraft.World/random.h"
 #include "../../Minecraft.World/StringHelpers.h"
 #include "XUI_MultiGameCreate.h"
 #include "XUI_Controls.h"

@@ -55,7 +55,7 @@
 class Renderer;
 extern Renderer InternalRenderManager;
 
-#include "Xbox/resource.h"
+#include "Xbox/Resource.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "legacy_stdio_definitions.lib")

@@ -7,7 +7,7 @@
 #include "../../Minecraft.World/net.minecraft.world.item.h"
 #include "../../Minecraft.World/net.minecraft.world.item.crafting.h"
 #include "../../Minecraft.World/net.minecraft.world.level.tile.entity.h"
-#include "../../MultiplayerLocalPlayer.h"
+#include "../../MultiPlayerLocalPlayer.h"
 #include "../../Minecraft.h"
 #include "../../Options.h"
 

@@ -4,7 +4,7 @@
 #include "UISplitScreenHelpers.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Minecraft.World/StringHelpers.h"
-#include "../../MultiplayerLocalPlayer.h"
+#include "../../MultiPlayerLocalPlayer.h"
 #include "../../Minecraft.h"
 #include "../../Minecraft.World/net.minecraft.world.level.tile.h"
 

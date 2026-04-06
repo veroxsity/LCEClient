@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Random.h"
+#include "random.h"
 #include "System.h"
 
 Random::Random()
