@@ -45,6 +45,8 @@ typedef void                VOID;
 typedef unsigned long       ULONG;
 typedef long long           LONGLONG;
 typedef unsigned long long  ULONGLONG;
+typedef int64_t             LONG64;
+typedef LONG64*             PLONG64;
 typedef float               FLOAT;
 typedef int                 BOOL;
 typedef bool                boolean;
@@ -266,6 +268,13 @@ inline LPVOID TlsGetValue(DWORD idx)          { return pthread_getspecific((pthr
 inline BOOL  TlsSetValue(DWORD idx, LPVOID v) { return pthread_setspecific((pthread_key_t)idx, v) == 0; }
 
 inline void Sleep(DWORD ms) { usleep(ms * 1000); }
+
+inline LONG64 InterlockedCompareExchangeRelease64(volatile LONG64* Destination, LONG64 Exchange, LONG64 Comperand)
+{
+    LONG64 expected = Comperand;
+    __atomic_compare_exchange_n(const_cast<LONG64*>(Destination), &expected, Exchange, false, __ATOMIC_RELEASE, __ATOMIC_RELAXED);
+    return expected;
+}
 
 inline VOID GlobalMemoryStatus(LPMEMORYSTATUS lpBuffer)
 {
