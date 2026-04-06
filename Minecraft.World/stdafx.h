@@ -118,6 +118,12 @@ typedef XUID GameSessionUID;
 #include "Minecraft.Client/xbox/network/extra.h"
 #endif
 
+#ifdef _LINUX64
+// Keep the legacy unqualified 'byte' token for project headers, but only
+// after the standard library headers above have already been parsed.
+#define byte unsigned char
+#endif
+
 #include "Definitions.h"
 #include "Class.h"
 #include "Exceptions.h"

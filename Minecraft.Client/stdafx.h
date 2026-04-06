@@ -162,6 +162,12 @@ typedef XUID GameSessionUID;
 #include <xparty.h>
 #endif
 
+#ifdef _LINUX64
+// Keep the legacy unqualified 'byte' token for project headers, but only
+// after the standard library headers above have already been parsed.
+#define byte unsigned char
+#endif
+
 #include "Minecraft.World/Definitions.h"
 #include "Minecraft.World/Class.h"
 #include "Minecraft.World/ArrayWithLength.h"
