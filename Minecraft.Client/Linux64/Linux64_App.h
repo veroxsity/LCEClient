@@ -22,10 +22,10 @@ public:
     virtual void ReleaseSaveThumbnail();
     virtual void GetScreenshot(int iPad, PBYTE* pbData, DWORD* pdwSize);
     virtual int  LoadLocalTMSFile(WCHAR* wchTMSFile);
-    virtual int  LoadLocalTMSFile(WCHAR* wchTMSFile, int eExt);
-    virtual void FreeLocalTMSFiles(int eType);
-    virtual int  GetLocalTMSFileIndex(WCHAR* wchTMSFile, bool bFilenameIncludesExtension, int eEXT=0);
-    virtual void ReadBannedList(int iPad, int action=0, bool bCallback=false) {}
+    virtual int  LoadLocalTMSFile(WCHAR* wchTMSFile, eFileExtensionType eExt);
+    virtual void FreeLocalTMSFiles(eTMSFileType eType);
+    virtual int  GetLocalTMSFileIndex(WCHAR* wchTMSFile, bool bFilenameIncludesExtension, eFileExtensionType eEXT=static_cast<eFileExtensionType>(0));
+    virtual void ReadBannedList(int iPad, eTMSAction action=static_cast<eTMSAction>(0), bool bCallback=false) {}
     static void DefaultOptionsCallback(LPVOID param);
     virtual void TemporaryCreateGameStart();
 };

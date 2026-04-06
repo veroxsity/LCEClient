@@ -37,6 +37,7 @@ typedef unsigned int        DWORD;
 typedef unsigned int        UINT;
 typedef int                 INT;
 typedef long                LONG;
+typedef short               SHORT;
 typedef char                CHAR;
 typedef void                VOID;
 #define CONST const

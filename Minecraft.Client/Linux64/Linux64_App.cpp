@@ -15,10 +15,10 @@ void CConsoleMinecraftApp::CaptureSaveThumbnail() {}
 void CConsoleMinecraftApp::GetSaveThumbnail(PBYTE* pbData, DWORD* pdwSize) { if(pbData)*pbData=nullptr; if(pdwSize)*pdwSize=0; }
 void CConsoleMinecraftApp::ReleaseSaveThumbnail() {}
 void CConsoleMinecraftApp::GetScreenshot(int, PBYTE* pbData, DWORD* pdwSize) { if(pbData)*pbData=nullptr; if(pdwSize)*pdwSize=0; }
-int  CConsoleMinecraftApp::LoadLocalTMSFile(WCHAR*,int) { return 0; }
+int  CConsoleMinecraftApp::LoadLocalTMSFile(WCHAR*, eFileExtensionType) { return 0; }
 int  CConsoleMinecraftApp::LoadLocalTMSFile(WCHAR*)     { return 0; }
-void CConsoleMinecraftApp::FreeLocalTMSFiles(int)       {}
-int  CConsoleMinecraftApp::GetLocalTMSFileIndex(WCHAR*,bool,int) { return -1; }
+void CConsoleMinecraftApp::FreeLocalTMSFiles(eTMSFileType)       {}
+int  CConsoleMinecraftApp::GetLocalTMSFileIndex(WCHAR*,bool,eFileExtensionType) { return -1; }
 void CConsoleMinecraftApp::DefaultOptionsCallback(LPVOID) {}
 
 void CConsoleMinecraftApp::TemporaryCreateGameStart() {
