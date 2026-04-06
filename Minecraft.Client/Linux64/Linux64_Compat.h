@@ -161,6 +161,7 @@ typedef HANDLE              HTHREAD;
 #define WINAPI
 #define CALLBACK
 #define APIENTRY
+#define CDECL
 #define STDMETHODCALLTYPE
 #define __cdecl
 #define __forceinline       inline __attribute__((always_inline))
@@ -435,6 +436,40 @@ template <size_t N>
 inline errno_t wcsncpy_s(wchar_t (&dst)[N], const wchar_t* src, size_t cnt)
 {
     return wcsncpy_s(dst, N, src, cnt);
+}
+
+inline int _vsnprintf_s(char* buffer, size_t sizeOfBuffer, size_t count, const char* format, va_list argptr)
+{
+    if (buffer == nullptr || sizeOfBuffer == 0 || format == nullptr)
+        return -1;
+
+    const size_t limit = (count == _TRUNCATE || count + 1 > sizeOfBuffer) ? sizeOfBuffer : count + 1;
+    const int result = vsnprintf(buffer, limit, format, argptr);
+    buffer[sizeOfBuffer - 1] = '\0';
+    return result;
+}
+
+template <size_t N>
+inline int _vsnprintf_s(char (&buffer)[N], size_t count, const char* format, va_list argptr)
+{
+    return _vsnprintf_s(buffer, N, count, format, argptr);
+}
+
+inline int _vsnwprintf_s(wchar_t* buffer, size_t sizeOfBuffer, size_t count, const wchar_t* format, va_list argptr)
+{
+    if (buffer == nullptr || sizeOfBuffer == 0 || format == nullptr)
+        return -1;
+
+    const size_t limit = (count == _TRUNCATE || count + 1 > sizeOfBuffer) ? sizeOfBuffer : count + 1;
+    const int result = vswprintf(buffer, limit, format, argptr);
+    buffer[sizeOfBuffer - 1] = L'\0';
+    return result;
+}
+
+template <size_t N>
+inline int _vsnwprintf_s(wchar_t (&buffer)[N], size_t count, const wchar_t* format, va_list argptr)
+{
+    return _vsnwprintf_s(buffer, N, count, format, argptr);
 }
 
 // WideChar conversion stubs (ASCII-safe for Phase 1)
