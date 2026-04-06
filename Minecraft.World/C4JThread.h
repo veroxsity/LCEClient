@@ -80,6 +80,10 @@ public:
 		SceKernelEventFlag m_event;
 	#elif defined __PSVITA__
 		SceUID m_event;
+	#elif defined _LINUX64
+		pthread_mutex_t m_mutex;
+		pthread_cond_t m_cond;
+		bool m_signaled;
 	#else
 		HANDLE m_event;
 	#endif // __PS3__
@@ -116,6 +120,10 @@ public:
 		SceKernelEventFlag	m_events;
 #elif defined __PSVITA__
 		SceUID m_events;
+#elif defined _LINUX64
+		pthread_mutex_t m_mutex;
+		pthread_cond_t m_cond;
+		bool* m_signaled;
 #else
 		HANDLE*				m_events;
 #endif // __PS3__
@@ -214,6 +222,11 @@ private:
 	Event			*m_completionFlag;
 	int				m_priority;
 	static SceInt32	entryPoint(SceSize argSize, void *pArgBlock);
+#elif defined _LINUX64
+	pthread_t		m_threadID;
+	Event*			m_completionFlag;
+	int				m_priority;
+	static void*	entryPoint(void* lpParam);
 #else
 	DWORD m_threadID;
 	HANDLE m_threadHandle;

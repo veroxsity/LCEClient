@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-if(WIN32)
+if(PLATFORM_NAME STREQUAL "Windows64")
   project(MinecraftConsoles LANGUAGES C CXX RC ASM_MASM)
 else()
   project(MinecraftConsoles LANGUAGES C CXX)
@@ -24,6 +24,32 @@ set(CMAKE_CONFIGURATION_TYPES
 )
 if(MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+if(PLATFORM_NAME STREQUAL "Linux64")
+  find_package(OpenGL REQUIRED)
+  find_package(GLEW REQUIRED)
+  find_package(SDL2 QUIET CONFIG)
+  if(NOT SDL2_FOUND)
+    find_package(SDL2 REQUIRED)
+  endif()
+  find_package(Threads REQUIRED)
+
+  if(TARGET SDL2::SDL2)
+    set(MINECRAFT_LINUX_SDL2_TARGET SDL2::SDL2)
+  elseif(TARGET SDL2::SDL2-static)
+    set(MINECRAFT_LINUX_SDL2_TARGET SDL2::SDL2-static)
+  else()
+    message(FATAL_ERROR "SDL2 was found, but no usable SDL2::SDL2 target is available.")
+  endif()
+
+  if(TARGET OpenGL::GL)
+    set(MINECRAFT_LINUX_OPENGL_TARGET OpenGL::GL)
+  elseif(TARGET OpenGL::OpenGL)
+    set(MINECRAFT_LINUX_OPENGL_TARGET OpenGL::OpenGL)
+  else()
+    message(FATAL_ERROR "OpenGL was found, but no usable OpenGL imported target is available.")
+  endif()
 endif()
 
 function(configure_compiler_target target)
@@ -92,7 +118,7 @@ list(APPEND MINECRAFT_SHARED_DEFINES ${PLATFORM_DEFINES})
 # ---
 add_subdirectory(Minecraft.World)
 add_subdirectory(Minecraft.Client)
-if(PLATFORM_NAME STREQUAL "Windows64" OR PLATFORM_NAME STREQUAL "Linux64") # Server supported on Windows and Linux
+if(PLATFORM_NAME STREQUAL "Windows64")
   add_subdirectory(Minecraft.Server)
 endif()
 
@@ -112,7 +138,7 @@ add_custom_target(GenerateBuildVer
 
 add_dependencies(Minecraft.World GenerateBuildVer)
 add_dependencies(Minecraft.Client GenerateBuildVer)
-if(PLATFORM_NAME STREQUAL "Windows64" OR PLATFORM_NAME STREQUAL "Linux64")
+if(PLATFORM_NAME STREQUAL "Windows64")
   add_dependencies(Minecraft.Server GenerateBuildVer)
 endif()
 

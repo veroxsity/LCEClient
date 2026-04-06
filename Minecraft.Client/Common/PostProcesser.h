@@ -1,6 +1,8 @@
 #pragma once
 
+#if defined(_WINDOWS64) || defined(_WIN64)
 #include <d3d11.h>
+#endif
 
 class PostProcesser
 {

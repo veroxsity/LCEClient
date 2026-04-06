@@ -64,10 +64,10 @@ target_link_libraries(Minecraft.Client PRIVATE
   $<$<STREQUAL:${PLATFORM_NAME},Windows64>:XInput9_1_0>
   $<$<STREQUAL:${PLATFORM_NAME},Windows64>:wsock32>
   $<$<STREQUAL:${PLATFORM_NAME},Windows64>:legacy_stdio_definitions>
-  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:SDL2>
-  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:GLEW>
-  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:GL>
-  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:pthread>
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:${MINECRAFT_LINUX_SDL2_TARGET}>
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:GLEW::GLEW>
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:${MINECRAFT_LINUX_OPENGL_TARGET}>
+  $<$<STREQUAL:${PLATFORM_NAME},Linux64>:Threads::Threads>
   $<$<AND:$<STREQUAL:${PLATFORM_NAME},Windows64>,$<CONFIG:Debug>>:
     "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/4JLibs/libs/4J_Input_d.lib"
     "${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_NAME}/4JLibs/libs/4J_Storage_d.lib"

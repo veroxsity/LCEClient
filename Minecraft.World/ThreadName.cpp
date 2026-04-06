@@ -11,6 +11,18 @@ typedef struct tagTHREADNAME_INFO {
 
 void SetThreadName( DWORD dwThreadID, LPCSTR szThreadName )
 {
+#if defined(_LINUX64)
+	UNREFERENCED_PARAMETER(dwThreadID);
+	if (szThreadName == nullptr)
+	{
+		return;
+	}
+
+	char threadName[16];
+	strncpy(threadName, szThreadName, sizeof(threadName) - 1);
+	threadName[sizeof(threadName) - 1] = '\0';
+	pthread_setname_np(pthread_self(), threadName);
+#else
 #ifndef __PS3__
     THREADNAME_INFO info;
 	
@@ -38,4 +50,5 @@ void SetThreadName( DWORD dwThreadID, LPCSTR szThreadName )
     }
 #endif
 #endif // __PS3__
+#endif // _LINUX64
 }
