@@ -10,7 +10,7 @@
 // offset - the offset in the buffer of the first byte to read.
 // length - the maximum number of bytes to read from the buffer.
 ByteArrayInputStream::ByteArrayInputStream(byteArray buf, unsigned int offset, unsigned int length)
-    : pos(offset), mark(offset)
+    : mark(offset), pos(offset)
 {
     if (offset > buf.length)
     {
@@ -32,7 +32,7 @@ ByteArrayInputStream::ByteArrayInputStream(byteArray buf, unsigned int offset, u
 // Parameters:
 // buf - the input buffer.
 ByteArrayInputStream::ByteArrayInputStream(byteArray buf)
-    : pos(0), count(buf.length), mark(0)
+    : count(buf.length), mark(0), pos(0)
 {
     this->buf = buf;
 }
@@ -118,19 +118,18 @@ void ByteArrayInputStream::close()
 // n - the number of bytes to be skipped.
 // Returns:
 // the actual number of bytes skipped.
-__int64 ByteArrayInputStream::skip(__int64 n)
+int64_t ByteArrayInputStream::skip(int64_t n)
 {
-    int newPos = pos + n;
-
-    if (newPos > count)
+    if (n <= 0)
     {
-        newPos = count;
+        return 0;
     }
 
-    int k = newPos - pos;
-    pos = newPos;
+    const int64_t available = static_cast<int64_t>(count) - static_cast<int64_t>(pos);
+    const int64_t skipped = min(n, available);
+    pos += static_cast<unsigned int>(skipped);
 
-    return k;
+    return skipped;
 }
 
 ByteArrayInputStream::~ByteArrayInputStream()
