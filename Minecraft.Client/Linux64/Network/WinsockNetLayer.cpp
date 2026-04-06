@@ -21,7 +21,7 @@ char               WinsockNetLayer::s_joinIP[256]      = {};
 int                WinsockNetLayer::s_joinPort         = 0;
 uint8_t            WinsockNetLayer::s_joinAssignedSmallId = 0xFF;
 DisconnectPacket::eDisconnectReason WinsockNetLayer::s_joinRejectReason =
-    DisconnectPacket::eDisconnectReason_Unknown;
+    DisconnectPacket::eDisconnect_Quitting;
 LinuxSocket        WinsockNetLayer::s_listenSocket         = INVALID_SOCKET_FD;
 LinuxSocket        WinsockNetLayer::s_hostConnectionSocket = INVALID_SOCKET_FD;
 pthread_t          WinsockNetLayer::s_acceptThread         = 0;
