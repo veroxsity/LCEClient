@@ -21,7 +21,7 @@ class Integer
 {
 public:
 	static const int MAX_VALUE = INT_MAX;
-	static int parseInt(wstring &str, int radix = 10);
+	static int parseInt(const wstring &str, int radix = 10);
 };
 
 class Float
