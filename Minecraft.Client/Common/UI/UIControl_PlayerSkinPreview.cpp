@@ -7,7 +7,7 @@
 #include "../../Lighting.h"
 #include "../../ModelPart.h"
 #include "../../Options.h"
-#include "../../Minecraft.World/net.minecraft.world.entity.player.h"
+#include "../Minecraft.World/net.minecraft.world.entity.player.h"
 #include "UIControl_PlayerSkinPreview.h"
 
 //#define SKIN_PREVIEW_BOB_ANIM

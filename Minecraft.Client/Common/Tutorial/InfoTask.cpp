@@ -6,7 +6,7 @@
 #include "Tutorial.h"
 #include "TutorialConstraints.h"
 #include "InfoTask.h"
-#include "../../Minecraft.World/Material.h"
+#include "../Minecraft.World/Material.h"
 #include "../../Windows64/KeyboardMouseInput.h"
 #include "Common/UI/UI.h"
 

@@ -3,10 +3,10 @@
 #include "../../Minecraft.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../MultiPlayerLevel.h"
-#include "../../Minecraft.World/Inventory.h"
-#include "../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../Minecraft.World/net.minecraft.world.level.h"
-#include "../../Minecraft.World/net.minecraft.world.level.tile.h"
+#include "../Minecraft.World/Inventory.h"
+#include "../Minecraft.World/net.minecraft.world.item.h"
+#include "../Minecraft.World/net.minecraft.world.level.h"
+#include "../Minecraft.World/net.minecraft.world.level.tile.h"
 #include "TutorialMode.h"
 
 TutorialMode::TutorialMode(int iPad, Minecraft *minecraft, ClientConnection *connection) : MultiPlayerGameMode( minecraft, connection ), m_iPad( iPad )

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Minecraft.World/SoundTypes.h"
+#include "../Minecraft.World/SoundTypes.h"
 
 #ifdef _XBOX
 

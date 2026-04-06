@@ -3,10 +3,10 @@
 #include "UIComponent_TutorialPopup.h"
 #include "UISplitScreenHelpers.h"
 #include "../../Common/Tutorial/Tutorial.h"
-#include "../../Minecraft.World/StringHelpers.h"
+#include "../Minecraft.World/StringHelpers.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../Minecraft.h"
-#include "../../Minecraft.World/net.minecraft.world.level.tile.h"
+#include "../Minecraft.World/net.minecraft.world.level.tile.h"
 
 UIComponent_TutorialPopup::UIComponent_TutorialPopup(int iPad, void *initData, UILayer *parentLayer) : UIScene(iPad, parentLayer)
 {

@@ -6,7 +6,7 @@
 #include "../../TexturePackRepository.h"
 #include "../../TexturePack.h"
 #include "../../DLCTexturePack.h"
-#include "../../Minecraft.World/StringHelpers.h"
+#include "../Minecraft.World/StringHelpers.h"
 #ifdef __ORBIS__
 #include <error_dialog.h>
 #endif

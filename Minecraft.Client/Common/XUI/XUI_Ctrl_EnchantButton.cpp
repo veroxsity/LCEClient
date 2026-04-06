@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "../../Minecraft.World/net.minecraft.world.inventory.h"
-#include "../../Minecraft.World/StringHelpers.h"
+#include "../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../Minecraft.World/StringHelpers.h"
 #include "../../Font.h"
 #include "../../Lighting.h"
 #include "../../MultiPlayerLocalPlayer.h"

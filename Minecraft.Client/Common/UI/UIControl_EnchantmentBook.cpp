@@ -6,8 +6,8 @@
 #include "../../EnchantTableRenderer.h"
 #include "../../Lighting.h"
 #include "../../BookModel.h"
-#include "../../Minecraft.World/net.minecraft.world.level.tile.entity.h"
-#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../Minecraft.World/net.minecraft.world.level.tile.entity.h"
+#include "../Minecraft.World/net.minecraft.world.inventory.h"
 
 UIControl_EnchantmentBook::UIControl_EnchantmentBook()
 {

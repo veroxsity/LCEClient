@@ -1,15 +1,15 @@
 #include "stdafx.h"
 
-#include "../../Minecraft.World/net.minecraft.world.inventory.h"
+#include "../Minecraft.World/net.minecraft.world.inventory.h"
 
-#include "../../Minecraft.World/Container.h"
-#include "../../Minecraft.World/Slot.h"
-#include "../../Minecraft.World/net.minecraft.world.level.tile.h"
-#include "../../Minecraft.World/net.minecraft.world.level.tile.entity.h"
-#include "../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../Minecraft.World/net.minecraft.world.entity.player.h"
+#include "../Minecraft.World/Container.h"
+#include "../Minecraft.World/Slot.h"
+#include "../Minecraft.World/net.minecraft.world.level.tile.h"
+#include "../Minecraft.World/net.minecraft.world.level.tile.entity.h"
+#include "../Minecraft.World/net.minecraft.world.item.h"
+#include "../Minecraft.World/net.minecraft.world.entity.player.h"
 
-#include "../../Minecraft.World/net.minecraft.stats.h"
+#include "../Minecraft.World/net.minecraft.stats.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"

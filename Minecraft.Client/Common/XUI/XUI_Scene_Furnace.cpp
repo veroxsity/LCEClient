@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "../../Minecraft.World/FurnaceMenu.h"
+#include "../Minecraft.World/FurnaceMenu.h"
 #include "../../MultiPlayerLocalPlayer.h"
 #include "../../Common/Tutorial/Tutorial.h"
 #include "../../Common/Tutorial/TutorialMode.h"

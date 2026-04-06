@@ -4,7 +4,7 @@ using namespace std;
 #ifndef _LINUX64
 #include <qnet.h>
 #endif
-#include "../../Minecraft.World/C4JThread.h"
+#include "../Minecraft.World/C4JThread.h"
 #include "NetworkPlayerInterface.h"
 #ifdef _XBOX
 #include "../../Xbox/Network/PlatformNetworkManagerXbox.h"

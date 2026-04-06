@@ -1,7 +1,7 @@
 #ifdef _LINUX64
 #include "stdafx.h"
 #include "Linux64/Network/WinsockNetLayer.h"
-#include "../Minecraft.World/DisconnectPacket.h"
+#include "Minecraft.World/DisconnectPacket.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>

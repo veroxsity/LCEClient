@@ -7,7 +7,7 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <vector>
-#include "..\..\Common\Network\NetworkPlayerInterface.h"
+#include "../../Common/Network/NetworkPlayerInterface.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -21,7 +21,7 @@
 
 class Socket;
 
-#include "..\..\..\Minecraft.World\DisconnectPacket.h"
+#include "Minecraft.World/DisconnectPacket.h"
 
 #pragma pack(push, 1)
 struct Win64LANBroadcast

@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "../../Minecraft.World/StringHelpers.h"
+#include "../Minecraft.World/StringHelpers.h"
 #include "XUI_DebugSetCamera.h"
-#include "../../Minecraft.World/ChunkSource.h"
+#include "../Minecraft.World/ChunkSource.h"
 
 // #include "../../Xbox/4JLibs/inc/4J_Input.h"
 

@@ -9,12 +9,12 @@
 #include "../../MultiPlayerLevel.h"
 #include "ClientConnection.h"
 #include "MultiPlayerLocalPlayer.h"
-#include "../../Minecraft.World/StringHelpers.h"
-#include "../../Minecraft.World/net.minecraft.world.item.h"
-#include "../../Minecraft.World/net.minecraft.world.level.h"
-#include "../../Minecraft.World/net.minecraft.world.level.storage.h"
-#include "../../Minecraft.World/net.minecraft.commands.common.h"
-#include "../../Minecraft.World/net.minecraft.world.item.enchantment.h"
+#include "../Minecraft.World/StringHelpers.h"
+#include "../Minecraft.World/net.minecraft.world.item.h"
+#include "../Minecraft.World/net.minecraft.world.level.h"
+#include "../Minecraft.World/net.minecraft.world.level.storage.h"
+#include "../Minecraft.World/net.minecraft.commands.common.h"
+#include "../Minecraft.World/net.minecraft.world.item.enchantment.h"
 
 UIScene_DebugOverlay::UIScene_DebugOverlay(int iPad, void *initData, UILayer *parentLayer) : UIScene(iPad, parentLayer)
 {
