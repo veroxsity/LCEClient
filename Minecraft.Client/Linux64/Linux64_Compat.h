@@ -13,12 +13,6 @@
 #include <stddef.h>
 #include <string>
 
-// The codebase uses 'byte' everywhere as 'unsigned char'.
-// In C++17, 'using namespace std' brings in std::byte (an enum class),
-// making bare 'byte' ambiguous. We #define byte to uint8_t so all
-// existing code works without modification, and std::byte stays
-// qualified as std::byte — no collision.
-#define byte unsigned char
 #include <stddef.h>
 #include <string.h>
 #include <wchar.h>
@@ -870,9 +864,6 @@ enum D3D11_COMPARISON_FUNC {
     D3D11_COMPARISON_GREATER_EQUAL = 7,
     D3D11_COMPARISON_ALWAYS        = 8,
 };
-
-// --------------- Iggy no-ops ---------------
-inline void IggyFlushInstalledFonts() {}
 
 #ifndef _wtoi
 inline int _wtoi(const wchar_t* s) { return (int)wcstol(s, nullptr, 10); }
