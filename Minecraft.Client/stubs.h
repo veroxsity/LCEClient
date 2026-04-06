@@ -140,6 +140,22 @@ void glFog(int,FloatBuffer *);
 // gluPerspective is not in GLEW (it's GLU) — keep our float version
 void gluPerspective(float,float,float,float);
 
+// Convenience wrappers matching the Windows single-ID overloads.
+// The codebase calls these everywhere; on Linux the real GL functions
+// take (count, pointer) pairs instead.
+inline int glGenTextures()
+{
+	GLuint id;
+	glGenTextures(1, &id);
+	return static_cast<int>(id);
+}
+
+inline void glDeleteTextures(int id)
+{
+	GLuint uid = static_cast<GLuint>(id);
+	glDeleteTextures(1, &uid);
+}
+
 // These are provided by GLEW as macro->function-pointer, so no declaration needed:
 // glGenQueriesARB, glBeginQueryARB, glEndQueryARB, glGetQueryObjectuARB
 // glClientActiveTexture, glActiveTexture, glMultiTexCoord2f

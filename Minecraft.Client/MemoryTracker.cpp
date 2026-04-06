@@ -16,13 +16,7 @@ int MemoryTracker::genLists(int count)
 
 int MemoryTracker::genTextures()
 {
-#ifdef _LINUX64
-	GLuint texId;
-	glGenTextures(1, &texId);
-	int id = static_cast<int>(texId);
-#else
 	int id = glGenTextures();
-#endif
 	TEXTURE_IDS.push_back(id);
 	return id;
 }
@@ -41,12 +35,7 @@ void MemoryTracker::releaseTextures()
 {
 	for (int i = 0; i < TEXTURE_IDS.size(); i++)
 	{
-#ifdef _LINUX64
-		GLuint texId = static_cast<GLuint>(TEXTURE_IDS.at(i));
-		glDeleteTextures(1, &texId);
-#else
 		glDeleteTextures(TEXTURE_IDS.at(i));
-#endif
 	}
 	TEXTURE_IDS.clear();
 }
