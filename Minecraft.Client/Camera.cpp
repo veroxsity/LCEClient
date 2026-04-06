@@ -176,6 +176,7 @@ void Camera::prepare(shared_ptr<Player> player, bool mirror)
 	yPlayerOffs = trans.y / trans.w;
 	zPlayerOffs = trans.z / trans.w;
 #endif
+#endif
 
     int flipCamera = mirror ? 1 : 0;
 
