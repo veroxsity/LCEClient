@@ -45,7 +45,7 @@ const int GL_AMBIENT_AND_DIFFUSE = 0;
 const int GL_TEXTURE1 = 0;
 const int GL_TEXTURE0 = 1;
 
-// GL function stubs — only on non-Linux (on Linux64 GLEW provides these)
+// GL function stubs — only on non-Linux (on Linux64 GLEW provides real declarations)
 #ifndef _LINUX64
 
 void glFlush();
@@ -122,7 +122,55 @@ void glMultiTexCoord2f(int, float, float);
 void glClientActiveTexture(int);
 void glActiveTexture(int);
 
-#endif // !_LINUX64 — end of GL function stubs
+#else // _LINUX64 — project-specific GL wrappers that aren't real GL functions
+
+// These take FloatBuffer*/ByteBuffer*/IntBuffer* which are project types,
+// not conflicts with GLEW — declare them on Linux too.
+void glTexGeni(int,int,int);
+void glTexGen(int,int,FloatBuffer *);
+void glReadPixels(int,int, int, int, int, int, ByteBuffer *);
+void glGenTextures(IntBuffer *);
+int glGenTextures();
+void glLight(int, int,FloatBuffer *);
+void glLightModel(int, FloatBuffer *);
+void glGetFloat(int a, FloatBuffer *b);
+void glTexCoordPointer(int, int, FloatBuffer *);
+void glNormalPointer(int, ByteBuffer *);
+void glColorPointer(int, bool, int, ByteBuffer *);
+void glVertexPointer(int, int, FloatBuffer *);
+void glTexImage2D(int,int,int,int,int,int,int,int,ByteBuffer *);
+void glDeleteTextures(IntBuffer *);
+void glCallLists(IntBuffer *);
+void glGenQueriesARB(IntBuffer *);
+void glGetQueryObjectuARB(int,int,IntBuffer *);
+void glFog(int,FloatBuffer *);
+void glMultMatrixf(float *);
+void glNewList(int,int);
+void glEndList(int vertexCount = 0);
+void glCallList(int);
+void glEnableClientState(int);
+void glDisableClientState(int);
+void glDeleteLists(int,int);
+void glCullFace(int);
+void gluPerspective(float,float,float,float);
+void glTexCoordPointer(int, int, int, int);
+void glNormalPointer(int, int, int);
+void glColorPointer(int, int, int, int);
+void glVertexPointer(int, int, int, int);
+void glDrawArrays(int,int,int);
+void glBeginQueryARB(int,int);
+void glEndQueryARB(int);
+void glAlphaFunc(int,float);
+void glOrtho(float,float,float,float,float,float);
+void glFogi(int,int);
+void glFogf(int,float);
+void glColorMaterial(int,int);
+void glShadeModel(int);
+void glClientActiveTexture(int);
+void glActiveTexture(int);
+void glMultiTexCoord2f(int, float, float);
+
+#endif // _LINUX64
 
 class GL11
 {
