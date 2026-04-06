@@ -456,6 +456,7 @@ inline VOID GlobalMemoryStatus(LPMEMORYSTATUS lpBuffer)
 #define fopen_s(fp, path, mode)         (*(fp) = fopen(path, mode), *(fp) ? 0 : errno)
 #define swprintf_s(buf, sz, fmt, ...)   swprintf(buf, sz, fmt, ##__VA_ARGS__)
 #define _wcsicmp                         wcscasecmp
+#define _stricmp                         strcasecmp
 
 inline errno_t strcpy_s(char* dst, size_t dstsz, const char* src)
 {
