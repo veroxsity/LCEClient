@@ -11,6 +11,10 @@
 #include "UIGroup.h"
 #include "UIController.h"
 
+#ifdef _LINUX64
+#include "../../Linux64/Linux64_UIController.h"
+#endif
+
 #include "UIControl.h"
 #include "UIControl_Base.h"
 #include "UIControl_Button.h"

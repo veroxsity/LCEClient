@@ -313,7 +313,10 @@ typedef XUID GameSessionUID;
 	#include "Linux64/Iggy/include/iggy_stub.h"
 	#include "Common/Audio/SoundEngine.h"
 	#include "Linux64/Linux64_App.h"
+	#include "Linux64/Linux64_UIController.h"
 	#include "Windows64Media/strings.h"
+	#include "Windows64/GameConfig/Minecraft.spa.h"
+	#include "Windows64/Sentient/SentientTelemetryCommon.h"
 #elif defined __PSVITA__
 	#include "PSVita/PSVita_App.h"
 	#include "PSVitaMedia/strings.h"		// TODO - create PSVita-specific version of this

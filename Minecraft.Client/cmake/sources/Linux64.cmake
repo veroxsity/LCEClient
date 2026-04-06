@@ -4,9 +4,12 @@ set(_MINECRAFT_CLIENT_LINUX64_PLATFORM
   "${BASE_DIR}/Linux64_Minecraft.cpp"
   "${BASE_DIR}/Linux64_App.h"
   "${BASE_DIR}/Linux64_App.cpp"
+  "${BASE_DIR}/Linux64_UIController.h"
+  "${BASE_DIR}/Linux64_UIController.cpp"
   "${BASE_DIR}/KeyboardMouseInput.h"
   "${BASE_DIR}/KeyboardMouseInput.cpp"
   "${BASE_DIR}/Linux64_Compat.h"
+  "${BASE_DIR}/Iggy/include/iggy.h"
   "${BASE_DIR}/Iggy/include/iggy_stub.h"
 )
 source_group("Linux64" FILES ${_MINECRAFT_CLIENT_LINUX64_PLATFORM})

@@ -61,6 +61,10 @@
 #else
 #include "UI/UI.h"
 #include "UI/UIScene_PauseMenu.h"
+#ifdef _LINUX64
+#include "../Windows64/GameConfig/Minecraft.spa.h"
+#include "../Windows64/Sentient/SentientTelemetryCommon.h"
+#endif
 #endif
 #ifdef __PS3__
 #include <sys/tty.h>
@@ -2872,7 +2876,7 @@ void CMinecraftApp::HandleXuiActions(void)
 
 					LoadingInputParams *loadingParams = new LoadingInputParams();
 					loadingParams->func = &UIScene_PauseMenu::SaveWorldThreadProc;
-					loadingParams->lpParam = static_cast<LPVOID>(false);
+					loadingParams->lpParam = nullptr;
 
 					// 4J-JEV - PS4: Fix for #5708 - [ONLINE] - If the user pulls their network cable out while saving the title will hang.
 					loadingParams->waitForThreadToDelete = true;
@@ -2933,7 +2937,7 @@ void CMinecraftApp::HandleXuiActions(void)
 					LoadingInputParams *loadingParams = new LoadingInputParams();
 					loadingParams->func = &UIScene_PauseMenu::SaveWorldThreadProc;
 
-					loadingParams->lpParam = (LPVOID)(true);
+					loadingParams->lpParam = reinterpret_cast<LPVOID>(static_cast<intptr_t>(1));
 
 					UIFullscreenProgressCompletionData *completionData = new UIFullscreenProgressCompletionData();
 					completionData->bShowBackground=TRUE;
