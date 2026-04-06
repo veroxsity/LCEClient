@@ -316,6 +316,7 @@ typedef XUID GameSessionUID;
 	#include "Linux64/Linux64_UIController.h"
 	#include "Windows64Media/strings.h"
 	#include "Windows64/GameConfig/Minecraft.spa.h"
+	#include "Windows64/Sentient/DynamicConfigurations.h"
 	#include "Windows64/Sentient/SentientTelemetryCommon.h"
 #elif defined __PSVITA__
 	#include "PSVita/PSVita_App.h"
