@@ -6,9 +6,26 @@
 #include <SDL2/SDL.h>
 
 #include "Common/PostProcesser.h"
+#include "Minecraft.World/AddEntityPacket.h"
+#include "Minecraft.World/AnimatePacket.h"
 #include "Minecraft.World/ByteBuffer.h"
+#include "Minecraft.World/ChestTile.h"
+#include "Minecraft.World/ClientCommandPacket.h"
+#include "Minecraft.World/ContainerOpenPacket.h"
+#include "Minecraft.World/EntityEvent.h"
 #include "Minecraft.World/FloatBuffer.h"
+#include "Minecraft.World/GameEventPacket.h"
 #include "Minecraft.World/IntBuffer.h"
+#include "Minecraft.World/Level.h"
+#include "Minecraft.World/PotionBrewing.h"
+#include "Minecraft.World/QuartzBlockTile.h"
+#include "Minecraft.World/Sapling.h"
+#include "Minecraft.World/SetEntityLinkPacket.h"
+#include "Minecraft.World/SharedConstants.h"
+#include "Minecraft.World/SkullTileEntity.h"
+#include "Minecraft.World/TallGrass.h"
+#include "Minecraft.World/TileEditorOpenPacket.h"
+#include "Minecraft.World/TileEntityDataPacket.h"
 #include "Linux64/Iggy/include/iggy.h"
 
 extern SDL_Window *g_pWindow;
@@ -478,7 +495,7 @@ float C_4JInput::GetJoypadStick_RY(int, bool) { return 0.0f; }
 unsigned char C_4JInput::GetJoypadLTrigger(int, bool) { return 0; }
 unsigned char C_4JInput::GetJoypadRTrigger(int, bool) { return 0; }
 void C_4JInput::SetMenuDisplayed(int, bool) {}
-C_4JInput::EKeyboardResult C_4JInput::RequestKeyboard(LPCWSTR, LPCWSTR, DWORD, UINT, int (*Func)(LPVOID, const bool), LPVOID lpParam, C_4JInput::EKeyboardMode)
+EKeyboardResult C_4JInput::RequestKeyboard(LPCWSTR, LPCWSTR, DWORD, UINT, int (*Func)(LPVOID, const bool), LPVOID lpParam, C_4JInput::EKeyboardMode)
 {
 	if (Func != nullptr)
 	{
