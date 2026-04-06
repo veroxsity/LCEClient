@@ -352,7 +352,7 @@ public:
 #define PIXEndNamedEvent() PIXEndEvent()
 #define PIXSetMarkerDeprecated(a, b, ...) PIXSetMarker(a, L ## b, __VA_ARGS__)
 #define PIXAddNamedCounter(a, b) PIXReportCounter( L ## b, a)
-#elif !defined(_LINUX64)
+#else
 inline void PIXAddNamedCounter(int, const char*, ...) {}
 inline void PIXBeginNamedEvent(int, const char*, ...) {}
 inline void PIXEndNamedEvent() {}
