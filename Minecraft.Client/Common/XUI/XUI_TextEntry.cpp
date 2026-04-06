@@ -106,7 +106,7 @@ HRESULT CScene_TextEntry::InterpretString(wstring &wsText)
 	int iCommand=-1;
 	WCHAR wchSep[2];
 
-#ifdef __PS3__
+#if defined(__PS3__) || defined(_LINUX64)
 	// 4J Stu - The Xbox version uses swscanf_s which isn't available in GCC.
 	swscanf(wsText.c_str(), L"%40s", wchCommand);
 #else
@@ -126,7 +126,7 @@ HRESULT CScene_TextEntry::InterpretString(wstring &wsText)
 			{
 				int x,z;
 
-#ifdef __PS3__
+#if defined(__PS3__) || defined(_LINUX64)
 				// 4J Stu - The Xbox version uses swscanf_s which isn't available in GCC.
 				swscanf(wsText.c_str(), L"%40s%c%d%c%d", wchCommand,wchSep,&x,wchSep,&z);
 #else
@@ -149,7 +149,7 @@ HRESULT CScene_TextEntry::InterpretString(wstring &wsText)
 			{
 				int iItem,iCount;
 
-#ifdef __PS3__
+#if defined(__PS3__) || defined(_LINUX64)
 				// 4J Stu - The Xbox version uses swscanf_s which isn't available in GCC.
 				swscanf(wsText.c_str(), L"%40s%c%d%c%d", wchCommand,wchSep,&iItem,wchSep,&iCount);
 #else
