@@ -119,8 +119,9 @@ void glMultiTexCoord2f(int, float, float);
 void glClientActiveTexture(int);
 void glActiveTexture(int);
 
-#else // _LINUX64: GLEW provides real GL functions. Only declare project wrappers.
+#else // _LINUX64: GLEW provides real GL functions. Only declare project-specific wrappers.
 
+// Custom overloads taking project buffer types (not in GL/GLEW)
 void glTexGeni(int,int,int);
 void glTexGen(int,int,FloatBuffer *);
 void glReadPixels(int,int,int,int,int,int,ByteBuffer *);
@@ -130,31 +131,26 @@ void glLight(int,int,FloatBuffer *);
 void glLightModel(int,FloatBuffer *);
 void glGetFloat(int a, FloatBuffer *b);
 void glTexCoordPointer(int,int,FloatBuffer *);
-void glTexCoordPointer(int,int,int,int);
 void glNormalPointer(int,ByteBuffer *);
-void glNormalPointer(int,int,int);
-void glEnableClientState(int);
-void glDisableClientState(int);
 void glColorPointer(int,bool,int,ByteBuffer *);
-void glColorPointer(int,int,int,int);
 void glVertexPointer(int,int,FloatBuffer *);
-void glVertexPointer(int,int,int,int);
-void glDrawArrays(int,int,int);
 void glNewList(int,int);
 void glEndList(int vertexCount = 0);
 void glCallList(int);
-void glMultMatrixf(float *);
 void glDeleteLists(int,int);
 void glTexImage2D(int,int,int,int,int,int,int,int,ByteBuffer *);
 void glDeleteTextures(IntBuffer *);
 void glCallLists(IntBuffer *);
-void glColorMask(bool,bool,bool,bool);
 void gluPerspective(float,float,float,float);
-void glAlphaFunc(int,float);
-void glOrtho(float,float,float,float,float,float);
-void glFogi(int,int);
-void glFogf(int,float);
 void glFog(int,FloatBuffer *);
+
+// These are provided by GLEW as macro->function-pointer, so no declaration needed:
+// glGenQueriesARB, glBeginQueryARB, glEndQueryARB, glGetQueryObjectuARB
+// glClientActiveTexture, glActiveTexture, glMultiTexCoord2f
+// glOrtho, glAlphaFunc, glColorMask, glDrawArrays, glFogi, glFogf
+// glTexCoordPointer(int,int,int,int), glNormalPointer(int,int,int)
+// glEnableClientState, glDisableClientState, glColorPointer(int,int,int,int)
+// glVertexPointer(int,int,int,int), glMultMatrixf
 
 // These are provided by GLEW as macro->function-pointer, so no declaration needed:
 // glGenQueriesARB, glBeginQueryARB, glEndQueryARB, glGetQueryObjectuARB
