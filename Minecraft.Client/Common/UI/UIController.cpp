@@ -1813,7 +1813,17 @@ void RADLINK UIController::CustomDrawCallback(void *user_callback_data, Iggy *pl
 GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * user_callback_data , IggyUTF16 * texture_name , S32 * width , S32 * height , void * * destroy_callback_data )
 {
 	UIController *uiController = static_cast<UIController *>(user_callback_data);
+
+#ifdef _LINUX64
+	// On Linux, IggyUTF16 is unsigned short (UTF-16) but wchar_t is 4 bytes (UTF-32).
+	// Convert to wstring for map lookup and debug printing.
+	std::wstring texNameW;
+	for (const IggyUTF16* p = texture_name; *p; ++p)
+		texNameW += static_cast<wchar_t>(*p);
+	auto it = uiController->m_substitutionTextures.find(texNameW.c_str());
+#else
     auto it = uiController->m_substitutionTextures.find(texture_name);
+#endif
 
     if(it != uiController->m_substitutionTextures.end())
 	{
@@ -1848,7 +1858,13 @@ GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * 
 
 			*destroy_callback_data = (void *)id;
 
-			app.DebugPrintf("Found substitution texture %ls (%d) - %dx%d\n", static_cast<wchar_t *>(texture_name), id, image.getWidth(), image.getHeight());
+			app.DebugPrintf("Found substitution texture %ls (%d) - %dx%d\n",
+#ifdef _LINUX64
+				texNameW.c_str(),
+#else
+				static_cast<wchar_t *>(texture_name),
+#endif
+				id, image.getWidth(), image.getHeight());
 			return ui.getSubstitutionTexture(id);
 		}
 		else
@@ -1858,7 +1874,12 @@ GDrawTexture * RADLINK UIController::TextureSubstitutionCreateCallback ( void * 
 	}
 	else
 	{
-		app.DebugPrintf("Could not find substitution texture %ls\n", static_cast<wchar_t *>(texture_name));
+		app.DebugPrintf("Could not find substitution texture %ls\n",
+#ifdef _LINUX64
+			texNameW.c_str());
+#else
+			static_cast<wchar_t *>(texture_name));
+#endif
 		return nullptr;
 	}
 }
