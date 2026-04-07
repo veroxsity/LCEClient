@@ -388,7 +388,9 @@ void Chunk::rebuild()
 							MemSect(0);
 							glPushMatrix();
 							glDepthMask(true);	// 4J added
+#ifndef _LINUX64
 							t->useCompactVertices(true);	 // 4J added
+#endif
 							translateToPos();
 							float ss = 1.000001f;
 							// 4J - have removed this scale as I don't think we should need it, and have now optimised the vertex
@@ -446,7 +448,9 @@ void Chunk::rebuild()
 			bounds.addBounds(t->bounds);		// 4J MGH - added
 			glPopMatrix();
 			glEndList();
+#ifndef _LINUX64
 			t->useCompactVertices(false);	 // 4J added
+#endif
 			t->offset(0, 0, 0);
 		}
 		else
@@ -704,7 +708,9 @@ void Chunk::rebuild_SPU()
 			MemSect(0);
 			glPushMatrix();
 			glDepthMask(true);	// 4J added
+#ifndef _LINUX64
 			t->useCompactVertices(true);	 // 4J added
+#endif
 			translateToPos();
 			float ss = 1.000001f;
 			// 4J - have removed this scale as I don't think we should need it, and have now optimised the vertex
@@ -779,7 +785,9 @@ void Chunk::rebuild_SPU()
 			bounds.addBounds(t->bounds);
 			glPopMatrix();
 			glEndList();
+#ifndef _LINUX64
 			t->useCompactVertices(false);	 // 4J added
+#endif
 			t->offset(0, 0, 0);
 		}
 		if (rendered)

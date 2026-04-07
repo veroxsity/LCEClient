@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
 #include <array>
+#include <functional>
+#include <unordered_map>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -34,21 +36,19 @@ extern wchar_t g_Win64UsernameW[17];
 
 namespace
 {
-constexpr std::array<float, 16> kIdentityMatrix = {
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f,
-};
-
-std::array<float, 16> s_modelMatrix = kIdentityMatrix;
-std::array<float, 16> s_projectionMatrix = kIdentityMatrix;
-std::array<float, 16> s_textureMatrix = kIdentityMatrix;
-int s_currentMatrixMode = 0;
-int s_nextCommandBufferId = 1;
 int s_nextTextureId = 1;
 int s_textureLevels = 1;
 bool s_renderSuspended = false;
+int s_activeCommandBuffer = -1;
+bool s_replayingCommandBuffer = false;
+int s_nextCommandBufferId = 1;
+int s_boundTexture = -1;
+int s_boundVertexTexture = -1;
+int s_lastTextureUnit = 0;
+float s_clearColour[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+float s_globalVertexTexU = 0.0f;
+float s_globalVertexTexV = 0.0f;
+bool s_matrixDirty = true;
 
 int s_primaryPad = 0;
 int s_lockedProfile = 0;
@@ -73,19 +73,255 @@ IggyFocusableObject s_dummyFocusableObject = {};
 void *s_dummyIggyUserdata = nullptr;
 unsigned char s_dummyIggyStorage = 0;
 
-void SetIdentity(std::array<float, 16> &matrix)
+struct TextureEntry
 {
-	matrix = kIdentityMatrix;
+	GLuint handle = 0;
+	int width = 0;
+	int height = 0;
+};
+
+struct CommandBuffer
+{
+	std::vector<std::function<void()>> commands;
+	size_t approxBytes = 0;
+};
+
+std::unordered_map<int, TextureEntry> s_textures;
+std::unordered_map<int, CommandBuffer> s_commandBuffers;
+
+bool RecordCommand(std::function<void()> command, size_t approxBytes = 0)
+{
+	if (s_activeCommandBuffer < 0 || s_replayingCommandBuffer)
+	{
+		return false;
+	}
+
+	CommandBuffer &buffer = s_commandBuffers[s_activeCommandBuffer];
+	buffer.commands.push_back(std::move(command));
+	buffer.approxBytes += approxBytes;
+	return true;
 }
 
-void CopyIdentity(FloatBuffer *buffer)
+GLenum MatrixModeToGL(int type)
 {
-	if (buffer == nullptr || buffer->_getDataPointer() == nullptr)
+	if (type == GL_PROJECTION || type == GL_PROJECTION_MATRIX)
+	{
+		return GL_PROJECTION;
+	}
+	if (type == GL_TEXTURE)
+	{
+		return GL_TEXTURE;
+	}
+	return GL_MODELVIEW;
+}
+
+GLenum PrimitiveTypeToGL(C4JRender::ePrimitiveType primitiveType)
+{
+	switch (primitiveType)
+	{
+	case C4JRender::PRIMITIVE_TYPE_TRIANGLE_LIST:
+		return GL_TRIANGLES;
+	case C4JRender::PRIMITIVE_TYPE_TRIANGLE_STRIP:
+		return GL_TRIANGLE_STRIP;
+	case C4JRender::PRIMITIVE_TYPE_TRIANGLE_FAN:
+		return GL_TRIANGLE_FAN;
+	case C4JRender::PRIMITIVE_TYPE_QUAD_LIST:
+		return GL_QUADS;
+	case C4JRender::PRIMITIVE_TYPE_LINE_LIST:
+		return GL_LINES;
+	case C4JRender::PRIMITIVE_TYPE_LINE_STRIP:
+		return GL_LINE_STRIP;
+	default:
+		return GL_TRIANGLES;
+	}
+}
+
+TextureEntry *FindTextureEntry(int idx)
+{
+	auto it = s_textures.find(idx);
+	return (it == s_textures.end()) ? nullptr : &it->second;
+}
+
+void BindTrackedTexture(int unit, int idx)
+{
+	glActiveTexture(unit == 0 ? GL_TEXTURE0 : GL_TEXTURE1);
+
+	if (idx < 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+	}
+	else
+	{
+		TextureEntry *entry = FindTextureEntry(idx);
+		if (entry != nullptr && entry->handle != 0)
+		{
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, entry->handle);
+		}
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+}
+
+void ConfigureViewport(C4JRender::eViewportType viewportType)
+{
+	if (g_pWindow == nullptr)
 	{
 		return;
 	}
 
-	memcpy(buffer->_getDataPointer(), kIdentityMatrix.data(), sizeof(float) * kIdentityMatrix.size());
+	int width = 0;
+	int height = 0;
+	SDL_GL_GetDrawableSize(g_pWindow, &width, &height);
+	if (width <= 0 || height <= 0)
+	{
+		return;
+	}
+
+	int x = 0;
+	int y = 0;
+	int w = width;
+	int h = height;
+
+	switch (viewportType)
+	{
+	case C4JRender::VIEWPORT_TYPE_SPLIT_TOP:
+		h = height / 2;
+		y = height - h;
+		break;
+	case C4JRender::VIEWPORT_TYPE_SPLIT_BOTTOM:
+		h = height / 2;
+		break;
+	case C4JRender::VIEWPORT_TYPE_SPLIT_LEFT:
+		w = width / 2;
+		break;
+	case C4JRender::VIEWPORT_TYPE_SPLIT_RIGHT:
+		w = width / 2;
+		x = width - w;
+		break;
+	case C4JRender::VIEWPORT_TYPE_QUADRANT_TOP_LEFT:
+		w = width / 2;
+		h = height / 2;
+		y = height - h;
+		break;
+	case C4JRender::VIEWPORT_TYPE_QUADRANT_TOP_RIGHT:
+		w = width / 2;
+		h = height / 2;
+		x = width - w;
+		y = height - h;
+		break;
+	case C4JRender::VIEWPORT_TYPE_QUADRANT_BOTTOM_LEFT:
+		w = width / 2;
+		h = height / 2;
+		break;
+	case C4JRender::VIEWPORT_TYPE_QUADRANT_BOTTOM_RIGHT:
+		w = width / 2;
+		h = height / 2;
+		x = width - w;
+		break;
+	case C4JRender::VIEWPORT_TYPE_FULLSCREEN:
+	default:
+		break;
+	}
+
+	glViewport(x, y, w, h);
+}
+
+void ExecuteDrawVertices(C4JRender::ePrimitiveType primitiveType, int count, void *dataIn, C4JRender::eVertexType vertexType)
+{
+	if (dataIn == nullptr || count <= 0)
+	{
+		return;
+	}
+
+	if (vertexType == C4JRender::VERTEX_TYPE_COMPRESSED)
+	{
+		static bool warned = false;
+		if (!warned)
+		{
+			fprintf(stderr, "[Linux64] VERTEX_TYPE_COMPRESSED is not implemented; draw skipped.\n");
+			warned = true;
+		}
+		return;
+	}
+
+	const unsigned char *bytes = static_cast<const unsigned char *>(dataIn);
+	const int stride = 8 * static_cast<int>(sizeof(int));
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, stride, bytes + 0);
+
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glClientActiveTexture(GL_TEXTURE0);
+	glTexCoordPointer(2, GL_FLOAT, stride, bytes + 3 * sizeof(float));
+
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4, GL_UNSIGNED_BYTE, stride, bytes + 5 * sizeof(int));
+
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glNormalPointer(GL_BYTE, stride, bytes + 6 * sizeof(int));
+
+	std::vector<float> vertexTextureCoords;
+	if (s_boundVertexTexture >= 0)
+	{
+		glActiveTexture(GL_TEXTURE1);
+		glEnable(GL_TEXTURE_2D);
+
+		TextureEntry *vertexTexture = FindTextureEntry(s_boundVertexTexture);
+		if (vertexTexture != nullptr && vertexTexture->handle != 0)
+		{
+			glBindTexture(GL_TEXTURE_2D, vertexTexture->handle);
+		}
+
+		const int sentinel = static_cast<int>(0xfe00fe00u);
+		const int *vertexData = static_cast<const int *>(dataIn);
+		if (vertexData[7] == sentinel)
+		{
+			glClientActiveTexture(GL_TEXTURE1);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glMultiTexCoord2f(GL_TEXTURE1, s_globalVertexTexU, s_globalVertexTexV);
+		}
+		else
+		{
+			vertexTextureCoords.resize(static_cast<size_t>(count) * 2);
+			for (int i = 0; i < count; ++i)
+			{
+				const int tex2Packed = vertexData[i * 8 + 7];
+				const int16_t *tex2 = reinterpret_cast<const int16_t *>(&tex2Packed);
+				vertexTextureCoords[static_cast<size_t>(i) * 2 + 0] = static_cast<float>(tex2[0]) / 256.0f;
+				vertexTextureCoords[static_cast<size_t>(i) * 2 + 1] = static_cast<float>(tex2[1]) / 256.0f;
+			}
+
+			glClientActiveTexture(GL_TEXTURE1);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2, GL_FLOAT, 0, vertexTextureCoords.data());
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+	}
+	else
+	{
+		glActiveTexture(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glClientActiveTexture(GL_TEXTURE1);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glActiveTexture(GL_TEXTURE0);
+	}
+
+	glDrawArrays(PrimitiveTypeToGL(primitiveType), 0, count);
+
+	if (s_boundVertexTexture >= 0)
+	{
+		glClientActiveTexture(GL_TEXTURE1);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glActiveTexture(GL_TEXTURE0);
+	}
+
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 int ClampPadIndex(int iPad)
@@ -111,53 +347,225 @@ C4JRender RenderManager;
 
 void C4JRender::Tick() {}
 void C4JRender::UpdateGamma(unsigned short) {}
-void C4JRender::MatrixMode(int type) { s_currentMatrixMode = type; }
+void C4JRender::MatrixMode(int type)
+{
+	const GLenum mode = MatrixModeToGL(type);
+	if (RecordCommand([mode]() { glMatrixMode(mode); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glMatrixMode(mode);
+	s_matrixDirty = true;
+}
 void C4JRender::MatrixSetIdentity()
 {
-	if (s_currentMatrixMode == GL_PROJECTION || s_currentMatrixMode == GL_PROJECTION_MATRIX)
+	if (RecordCommand([]() { glLoadIdentity(); s_matrixDirty = true; }))
 	{
-		SetIdentity(s_projectionMatrix);
 		return;
 	}
 
-	if (s_currentMatrixMode == GL_TEXTURE)
-	{
-		SetIdentity(s_textureMatrix);
-		return;
-	}
-
-	SetIdentity(s_modelMatrix);
+	glLoadIdentity();
+	s_matrixDirty = true;
 }
-void C4JRender::MatrixTranslate(float, float, float) {}
-void C4JRender::MatrixRotate(float, float, float, float) {}
-void C4JRender::MatrixScale(float, float, float) {}
-void C4JRender::MatrixPerspective(float, float, float, float) {}
-void C4JRender::MatrixOrthogonal(float, float, float, float, float, float) {}
-void C4JRender::MatrixPop() {}
-void C4JRender::MatrixPush() {}
-void C4JRender::MatrixMult(float *) {}
+void C4JRender::MatrixTranslate(float x, float y, float z)
+{
+	if (RecordCommand([x, y, z]() { glTranslatef(x, y, z); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glTranslatef(x, y, z);
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixRotate(float angle, float x, float y, float z)
+{
+	const float degrees = angle * (180.0f / PI);
+	if (RecordCommand([degrees, x, y, z]() { glRotatef(degrees, x, y, z); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glRotatef(degrees, x, y, z);
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixScale(float x, float y, float z)
+{
+	if (RecordCommand([x, y, z]() { glScalef(x, y, z); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glScalef(x, y, z);
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixPerspective(float fovy, float aspect, float zNear, float zFar)
+{
+	const float radians = fovy * (PI / 180.0f);
+	const float top = tanf(radians * 0.5f) * zNear;
+	const float bottom = -top;
+	const float right = top * aspect;
+	const float left = -right;
+	if (RecordCommand([left, right, bottom, top, zNear, zFar]() { glFrustum(left, right, bottom, top, zNear, zFar); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glFrustum(left, right, bottom, top, zNear, zFar);
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixOrthogonal(float left, float right, float bottom, float top, float zNear, float zFar)
+{
+	if (RecordCommand([left, right, bottom, top, zNear, zFar]() { glOrtho(left, right, bottom, top, zNear, zFar); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glOrtho(left, right, bottom, top, zNear, zFar);
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixPop()
+{
+	if (RecordCommand([]() { glPopMatrix(); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glPopMatrix();
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixPush()
+{
+	if (RecordCommand([]() { glPushMatrix(); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glPushMatrix();
+	s_matrixDirty = true;
+}
+void C4JRender::MatrixMult(float *mat)
+{
+	if (mat == nullptr)
+	{
+		return;
+	}
+
+	std::array<float, 16> copy = {};
+	memcpy(copy.data(), mat, sizeof(copy));
+	if (RecordCommand([copy]() { glMultMatrixf(copy.data()); s_matrixDirty = true; }))
+	{
+		return;
+	}
+
+	glMultMatrixf(copy.data());
+	s_matrixDirty = true;
+}
 const float *C4JRender::MatrixGet(int type)
 {
-	if (type == GL_PROJECTION || type == GL_PROJECTION_MATRIX)
-	{
-		return s_projectionMatrix.data();
-	}
-
-	if (type == GL_TEXTURE)
-	{
-		return s_textureMatrix.data();
-	}
-
-	return s_modelMatrix.data();
+	static std::array<float, 16> matrix = {};
+	glGetFloatv(MatrixModeToGL(type == GL_MODELVIEW_MATRIX ? GL_MODELVIEW : type), matrix.data());
+	return matrix.data();
 }
-void C4JRender::Set_matrixDirty() {}
-void C4JRender::Initialise(ID3D11Device *, IDXGISwapChain *) {}
+void C4JRender::Set_matrixDirty() { s_matrixDirty = true; }
+void C4JRender::Initialise(ID3D11Device *, IDXGISwapChain *)
+{
+	glClearDepth(1.0);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.1f);
+	glShadeModel(GL_SMOOTH);
+	PostProcesser::GetInstance().Init();
+}
 void C4JRender::InitialiseContext() {}
-void C4JRender::StartFrame() {}
+void C4JRender::StartFrame()
+{
+	if (g_pWindow != nullptr)
+	{
+		int width = 0;
+		int height = 0;
+		SDL_GL_GetDrawableSize(g_pWindow, &width, &height);
+		if (width > 0 && height > 0)
+		{
+			glViewport(0, 0, width, height);
+		}
+	}
+}
 void C4JRender::DoScreenGrabOnNextPresent() {}
-void C4JRender::Present() {}
-void C4JRender::Clear(int, D3D11_RECT *) {}
-void C4JRender::SetClearColour(const float[4]) {}
+void C4JRender::Present()
+{
+	PostProcesser::GetInstance().Apply();
+	if (g_pWindow != nullptr)
+	{
+		SDL_GL_SwapWindow(g_pWindow);
+	}
+}
+void C4JRender::Clear(int flags, D3D11_RECT *pRect)
+{
+	GLbitfield mask = 0;
+	if ((flags & GL_COLOR_BUFFER_BIT) != 0)
+	{
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+	if ((flags & GL_DEPTH_BUFFER_BIT) != 0)
+	{
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+	if (mask == 0)
+	{
+		return;
+	}
+
+	if (RecordCommand([mask, rect = (pRect != nullptr) ? *pRect : D3D11_RECT{} , hasRect = (pRect != nullptr)]()
+	{
+		if (hasRect)
+		{
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+		}
+		glClear(mask);
+		if (hasRect)
+		{
+			glDisable(GL_SCISSOR_TEST);
+		}
+	}))
+	{
+		return;
+	}
+
+	if (pRect != nullptr)
+	{
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(pRect->left, pRect->top, pRect->right - pRect->left, pRect->bottom - pRect->top);
+	}
+	glClear(mask);
+	if (pRect != nullptr)
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
+}
+void C4JRender::SetClearColour(const float colourRGBA[4])
+{
+	if (colourRGBA == nullptr)
+	{
+		return;
+	}
+
+	memcpy(s_clearColour, colourRGBA, sizeof(s_clearColour));
+	if (RecordCommand([colour = std::array<float, 4>{colourRGBA[0], colourRGBA[1], colourRGBA[2], colourRGBA[3]}]()
+	{
+		glClearColor(colour[0], colour[1], colour[2], colour[3]);
+	}))
+	{
+		return;
+	}
+
+	glClearColor(colourRGBA[0], colourRGBA[1], colourRGBA[2], colourRGBA[3]);
+}
 bool C4JRender::IsWidescreen() { return true; }
 bool C4JRender::IsHiDef() { return true; }
 void C4JRender::CaptureThumbnail(ImageFileBuffer *pngOut)
@@ -186,33 +594,218 @@ void C4JRender::BeginConditionalSurvey(int) {}
 void C4JRender::EndConditionalSurvey() {}
 void C4JRender::BeginConditionalRendering(int) {}
 void C4JRender::EndConditionalRendering() {}
-void C4JRender::DrawVertices(C4JRender::ePrimitiveType, int, void *, C4JRender::eVertexType, C4JRender::ePixelShaderType) {}
+void C4JRender::DrawVertices(C4JRender::ePrimitiveType primitiveType, int count, void *dataIn, C4JRender::eVertexType vertexType, C4JRender::ePixelShaderType)
+{
+	if (dataIn == nullptr || count <= 0)
+	{
+		return;
+	}
+
+	const size_t stride = (vertexType == C4JRender::VERTEX_TYPE_COMPRESSED) ? 16u : 32u;
+	std::vector<unsigned char> copiedData;
+	copiedData.resize(stride * static_cast<size_t>(count));
+	memcpy(copiedData.data(), dataIn, copiedData.size());
+
+	if (RecordCommand([primitiveType, count, vertexType, copiedData]()
+	{
+		ExecuteDrawVertices(primitiveType, count, const_cast<unsigned char *>(copiedData.data()), vertexType);
+	}, copiedData.size()))
+	{
+		return;
+	}
+
+	ExecuteDrawVertices(primitiveType, count, copiedData.data(), vertexType);
+}
 void C4JRender::DrawVertexBuffer(C4JRender::ePrimitiveType, int, ID3D11Buffer *, C4JRender::eVertexType, C4JRender::ePixelShaderType) {}
 void C4JRender::CBuffLockStaticCreations() {}
 int C4JRender::CBuffCreate(int count)
 {
 	const int first = s_nextCommandBufferId;
-	s_nextCommandBufferId += (count > 0) ? count : 1;
+	const int actualCount = (count > 0) ? count : 1;
+	for (int i = 0; i < actualCount; ++i)
+	{
+		s_commandBuffers[first + i] = {};
+	}
+	s_nextCommandBufferId += actualCount;
 	return first;
 }
-void C4JRender::CBuffDelete(int, int) {}
-void C4JRender::CBuffStart(int, bool) {}
-void C4JRender::CBuffClear(int) {}
-int C4JRender::CBuffSize(int) { return 0; }
-void C4JRender::CBuffEnd() {}
-bool C4JRender::CBuffCall(int, bool) { return false; }
+void C4JRender::CBuffDelete(int first, int count)
+{
+	const int actualCount = (count > 0) ? count : 1;
+	for (int i = 0; i < actualCount; ++i)
+	{
+		s_commandBuffers.erase(first + i);
+	}
+}
+void C4JRender::CBuffStart(int index, bool)
+{
+	CommandBuffer &buffer = s_commandBuffers[index];
+	buffer.commands.clear();
+	buffer.approxBytes = 0;
+	s_activeCommandBuffer = index;
+}
+void C4JRender::CBuffClear(int index)
+{
+	auto it = s_commandBuffers.find(index);
+	if (it != s_commandBuffers.end())
+	{
+		it->second.commands.clear();
+		it->second.approxBytes = 0;
+	}
+}
+int C4JRender::CBuffSize(int index)
+{
+	if (index < 0)
+	{
+		size_t totalBytes = 0;
+		for (const auto &entry : s_commandBuffers)
+		{
+			totalBytes += entry.second.approxBytes;
+		}
+		return static_cast<int>(totalBytes);
+	}
+
+	auto it = s_commandBuffers.find(index);
+	return (it == s_commandBuffers.end()) ? 0 : static_cast<int>(it->second.approxBytes);
+}
+void C4JRender::CBuffEnd()
+{
+	s_activeCommandBuffer = -1;
+}
+bool C4JRender::CBuffCall(int index, bool)
+{
+	auto it = s_commandBuffers.find(index);
+	if (it == s_commandBuffers.end() || it->second.commands.empty())
+	{
+		return false;
+	}
+
+	const bool wasReplaying = s_replayingCommandBuffer;
+	s_replayingCommandBuffer = true;
+	for (const auto &command : it->second.commands)
+	{
+		command();
+	}
+	s_replayingCommandBuffer = wasReplaying;
+	return true;
+}
 void C4JRender::CBuffTick() {}
 void C4JRender::CBuffDeferredModeStart() {}
 void C4JRender::CBuffDeferredModeEnd() {}
-int C4JRender::TextureCreate() { return s_nextTextureId++; }
-void C4JRender::TextureFree(int) {}
-void C4JRender::TextureBind(int) {}
-void C4JRender::TextureBindVertex(int) {}
+int C4JRender::TextureCreate()
+{
+	const int idx = s_nextTextureId++;
+	TextureEntry &entry = s_textures[idx];
+	glGenTextures(1, &entry.handle);
+	return idx;
+}
+void C4JRender::TextureFree(int idx)
+{
+	auto it = s_textures.find(idx);
+	if (it == s_textures.end())
+	{
+		return;
+	}
+
+	if (it->second.handle != 0)
+	{
+		glDeleteTextures(1, &it->second.handle);
+	}
+	s_textures.erase(it);
+}
+void C4JRender::TextureBind(int idx)
+{
+	s_boundTexture = idx;
+	s_lastTextureUnit = 0;
+	if (RecordCommand([idx]() { BindTrackedTexture(0, idx); }))
+	{
+		return;
+	}
+
+	BindTrackedTexture(0, idx);
+}
+void C4JRender::TextureBindVertex(int idx)
+{
+	s_boundVertexTexture = idx;
+	s_lastTextureUnit = 1;
+	if (RecordCommand([idx]() { BindTrackedTexture(1, idx); }))
+	{
+		return;
+	}
+
+	BindTrackedTexture(1, idx);
+}
 void C4JRender::TextureSetTextureLevels(int levels) { s_textureLevels = levels; }
 int C4JRender::TextureGetTextureLevels() { return s_textureLevels; }
-void C4JRender::TextureData(int, int, void *, int, eTextureFormat) {}
-void C4JRender::TextureDataUpdate(int, int, int, int, void *, int) {}
-void C4JRender::TextureSetParam(int, int) {}
+void C4JRender::TextureData(int width, int height, void *data, int level, eTextureFormat)
+{
+	if (s_boundTexture < 0 || data == nullptr)
+	{
+		return;
+	}
+
+	TextureEntry *entry = FindTextureEntry(s_boundTexture);
+	if (entry == nullptr)
+	{
+		return;
+	}
+
+	entry->width = width;
+	entry->height = height;
+	glBindTexture(GL_TEXTURE_2D, entry->handle);
+	glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
+	if (level == 0)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+}
+void C4JRender::TextureDataUpdate(int xoffset, int yoffset, int width, int height, void *data, int level)
+{
+	if (s_boundTexture < 0 || data == nullptr)
+	{
+		return;
+	}
+
+	TextureEntry *entry = FindTextureEntry(s_boundTexture);
+	if (entry == nullptr)
+	{
+		return;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, entry->handle);
+	glTexSubImage2D(GL_TEXTURE_2D, level, xoffset, yoffset, width, height, GL_BGRA, GL_UNSIGNED_BYTE, data);
+}
+void C4JRender::TextureSetParam(int param, int value)
+{
+	const int textureIndex = (s_lastTextureUnit == 1) ? s_boundVertexTexture : s_boundTexture;
+	TextureEntry *entry = FindTextureEntry(textureIndex);
+	if (entry == nullptr)
+	{
+		return;
+	}
+
+	GLenum actualParam = static_cast<GLenum>(param);
+	GLint actualValue = value;
+	if (param == GL_TEXTURE_WRAP_S || param == GL_TEXTURE_WRAP_T)
+	{
+		if (value == GL_CLAMP)
+		{
+			actualValue = GL_CLAMP_TO_EDGE;
+		}
+		else if (value == GL_REPEAT)
+		{
+			actualValue = GL_REPEAT;
+		}
+	}
+
+	glActiveTexture(s_lastTextureUnit == 1 ? GL_TEXTURE1 : GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, entry->handle);
+	glTexParameteri(GL_TEXTURE_2D, actualParam, actualValue);
+	glActiveTexture(GL_TEXTURE0);
+}
 void C4JRender::TextureDynamicUpdateStart() {}
 void C4JRender::TextureDynamicUpdateEnd() {}
 // LoadTextureData implementations moved to Linux64_TextureLoader.cpp (stb_image)
@@ -220,36 +813,316 @@ HRESULT C4JRender::SaveTextureData(const char *, D3DXIMAGE_INFO *, int *) { retu
 HRESULT C4JRender::SaveTextureDataToMemory(void *, int, int *, int, int, int *) { return E_FAIL; }
 void C4JRender::TextureGetStats() {}
 ID3D11ShaderResourceView *C4JRender::TextureGetTexture(int) { return nullptr; }
-void C4JRender::StateSetColour(float, float, float, float) {}
-void C4JRender::StateSetDepthMask(bool) {}
-void C4JRender::StateSetBlendEnable(bool) {}
-void C4JRender::StateSetBlendFunc(int, int) {}
-void C4JRender::StateSetBlendFactor(unsigned int) {}
-void C4JRender::StateSetAlphaFunc(int, float) {}
-void C4JRender::StateSetDepthFunc(int) {}
-void C4JRender::StateSetFaceCull(bool) {}
-void C4JRender::StateSetFaceCullCW(bool) {}
-void C4JRender::StateSetLineWidth(float) {}
-void C4JRender::StateSetWriteEnable(bool, bool, bool, bool) {}
-void C4JRender::StateSetDepthTestEnable(bool) {}
-void C4JRender::StateSetAlphaTestEnable(bool) {}
-void C4JRender::StateSetDepthSlopeAndBias(float, float) {}
-void C4JRender::StateSetFogEnable(bool) {}
-void C4JRender::StateSetFogMode(int) {}
-void C4JRender::StateSetFogNearDistance(float) {}
-void C4JRender::StateSetFogFarDistance(float) {}
-void C4JRender::StateSetFogDensity(float) {}
-void C4JRender::StateSetFogColour(float, float, float) {}
-void C4JRender::StateSetLightingEnable(bool) {}
-void C4JRender::StateSetVertexTextureUV(float, float) {}
-void C4JRender::StateSetLightColour(int, float, float, float) {}
-void C4JRender::StateSetLightAmbientColour(float, float, float) {}
-void C4JRender::StateSetLightDirection(int, float, float, float) {}
-void C4JRender::StateSetLightEnable(int, bool) {}
-void C4JRender::StateSetViewport(C4JRender::eViewportType) {}
+void C4JRender::StateSetColour(float r, float g, float b, float a)
+{
+	if (RecordCommand([r, g, b, a]() { glColor4f(r, g, b, a); }))
+	{
+		return;
+	}
+
+	glColor4f(r, g, b, a);
+}
+void C4JRender::StateSetDepthMask(bool enable)
+{
+	if (RecordCommand([enable]() { glDepthMask(enable ? GL_TRUE : GL_FALSE); }))
+	{
+		return;
+	}
+
+	glDepthMask(enable ? GL_TRUE : GL_FALSE);
+}
+void C4JRender::StateSetBlendEnable(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+}
+void C4JRender::StateSetBlendFunc(int src, int dst)
+{
+	if (RecordCommand([src, dst]() { glBlendFunc(src, dst); }))
+	{
+		return;
+	}
+
+	glBlendFunc(src, dst);
+}
+void C4JRender::StateSetBlendFactor(unsigned int colour)
+{
+	const float a = static_cast<float>(colour & 0xff) / 255.0f;
+	const float b = static_cast<float>((colour >> 8) & 0xff) / 255.0f;
+	const float g = static_cast<float>((colour >> 16) & 0xff) / 255.0f;
+	const float r = static_cast<float>((colour >> 24) & 0xff) / 255.0f;
+	if (RecordCommand([r, g, b, a]() { glBlendColor(r, g, b, a); }))
+	{
+		return;
+	}
+
+	glBlendColor(r, g, b, a);
+}
+void C4JRender::StateSetAlphaFunc(int func, float param)
+{
+	if (RecordCommand([func, param]() { glAlphaFunc(func, param); }))
+	{
+		return;
+	}
+
+	glAlphaFunc(func, param);
+}
+void C4JRender::StateSetDepthFunc(int func)
+{
+	if (RecordCommand([func]() { glDepthFunc(func); }))
+	{
+		return;
+	}
+
+	glDepthFunc(func);
+}
+void C4JRender::StateSetFaceCull(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+}
+void C4JRender::StateSetFaceCullCW(bool enable)
+{
+	const GLenum mode = enable ? GL_BACK : GL_FRONT;
+	if (RecordCommand([mode]() { glCullFace(mode); }))
+	{
+		return;
+	}
+
+	glCullFace(mode);
+}
+void C4JRender::StateSetLineWidth(float width)
+{
+	if (RecordCommand([width]() { glLineWidth(width); }))
+	{
+		return;
+	}
+
+	glLineWidth(width);
+}
+void C4JRender::StateSetWriteEnable(bool red, bool green, bool blue, bool alpha)
+{
+	if (RecordCommand([red, green, blue, alpha]() { glColorMask(red, green, blue, alpha); }))
+	{
+		return;
+	}
+
+	glColorMask(red, green, blue, alpha);
+}
+void C4JRender::StateSetDepthTestEnable(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+}
+void C4JRender::StateSetAlphaTestEnable(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_ALPHA_TEST) : glDisable(GL_ALPHA_TEST); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_ALPHA_TEST) : glDisable(GL_ALPHA_TEST);
+}
+void C4JRender::StateSetDepthSlopeAndBias(float slope, float bias)
+{
+	if (RecordCommand([slope, bias]()
+	{
+		if (slope != 0.0f || bias != 0.0f)
+		{
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(slope, bias);
+		}
+		else
+		{
+			glDisable(GL_POLYGON_OFFSET_FILL);
+		}
+	}))
+	{
+		return;
+	}
+
+	if (slope != 0.0f || bias != 0.0f)
+	{
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(slope, bias);
+	}
+	else
+	{
+		glDisable(GL_POLYGON_OFFSET_FILL);
+	}
+}
+void C4JRender::StateSetFogEnable(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_FOG) : glDisable(GL_FOG); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_FOG) : glDisable(GL_FOG);
+}
+void C4JRender::StateSetFogMode(int mode)
+{
+	if (RecordCommand([mode]() { glFogi(GL_FOG_MODE, mode); }))
+	{
+		return;
+	}
+
+	glFogi(GL_FOG_MODE, mode);
+}
+void C4JRender::StateSetFogNearDistance(float dist)
+{
+	if (RecordCommand([dist]() { glFogf(GL_FOG_START, dist); }))
+	{
+		return;
+	}
+
+	glFogf(GL_FOG_START, dist);
+}
+void C4JRender::StateSetFogFarDistance(float dist)
+{
+	if (RecordCommand([dist]() { glFogf(GL_FOG_END, dist); }))
+	{
+		return;
+	}
+
+	glFogf(GL_FOG_END, dist);
+}
+void C4JRender::StateSetFogDensity(float density)
+{
+	if (RecordCommand([density]() { glFogf(GL_FOG_DENSITY, density); }))
+	{
+		return;
+	}
+
+	glFogf(GL_FOG_DENSITY, density);
+}
+void C4JRender::StateSetFogColour(float red, float green, float blue)
+{
+	const std::array<float, 4> colour = {red, green, blue, 1.0f};
+	if (RecordCommand([colour]() { glFogfv(GL_FOG_COLOR, colour.data()); }))
+	{
+		return;
+	}
+
+	glFogfv(GL_FOG_COLOR, colour.data());
+}
+void C4JRender::StateSetLightingEnable(bool enable)
+{
+	if (RecordCommand([enable]() { enable ? glEnable(GL_LIGHTING) : glDisable(GL_LIGHTING); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(GL_LIGHTING) : glDisable(GL_LIGHTING);
+}
+void C4JRender::StateSetVertexTextureUV(float u, float v)
+{
+	s_globalVertexTexU = u;
+	s_globalVertexTexV = v;
+}
+void C4JRender::StateSetLightColour(int light, float red, float green, float blue)
+{
+	const GLenum glLightId = (light == 0) ? GL_LIGHT0 : GL_LIGHT1;
+	const std::array<float, 4> colour = {red, green, blue, 1.0f};
+	if (RecordCommand([glLightId, colour]() { glLightfv(glLightId, GL_DIFFUSE, colour.data()); }))
+	{
+		return;
+	}
+
+	glLightfv(glLightId, GL_DIFFUSE, colour.data());
+}
+void C4JRender::StateSetLightAmbientColour(float red, float green, float blue)
+{
+	const std::array<float, 4> colour = {red, green, blue, 1.0f};
+	if (RecordCommand([colour]() { glLightModelfv(GL_LIGHT_MODEL_AMBIENT, colour.data()); }))
+	{
+		return;
+	}
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, colour.data());
+}
+void C4JRender::StateSetLightDirection(int light, float x, float y, float z)
+{
+	const GLenum glLightId = (light == 0) ? GL_LIGHT0 : GL_LIGHT1;
+	const std::array<float, 4> dir = {x, y, z, 0.0f};
+	if (RecordCommand([glLightId, dir]() { glLightfv(glLightId, GL_POSITION, dir.data()); }))
+	{
+		return;
+	}
+
+	glLightfv(glLightId, GL_POSITION, dir.data());
+}
+void C4JRender::StateSetLightEnable(int light, bool enable)
+{
+	const GLenum glLightId = (light == 0) ? GL_LIGHT0 : GL_LIGHT1;
+	if (RecordCommand([glLightId, enable]() { enable ? glEnable(glLightId) : glDisable(glLightId); }))
+	{
+		return;
+	}
+
+	enable ? glEnable(glLightId) : glDisable(glLightId);
+}
+void C4JRender::StateSetViewport(C4JRender::eViewportType viewportType)
+{
+	if (RecordCommand([viewportType]() { ConfigureViewport(viewportType); }))
+	{
+		return;
+	}
+
+	ConfigureViewport(viewportType);
+}
 void C4JRender::StateSetEnableViewportClipPlanes(bool) {}
-void C4JRender::StateSetTexGenCol(int, float, float, float, float, bool) {}
-void C4JRender::StateSetStencil(int, uint8_t, uint8_t, uint8_t) {}
+void C4JRender::StateSetTexGenCol(int col, float x, float y, float z, float w, bool eyeSpace)
+{
+	const GLenum coord = (col == GL_S) ? GL_S : ((col == GL_T) ? GL_T : ((col == GL_Q) ? GL_Q : GL_R));
+	const GLenum plane = eyeSpace ? GL_EYE_PLANE : GL_OBJECT_PLANE;
+	const std::array<float, 4> values = {x, y, z, w};
+	if (RecordCommand([coord, plane, values]()
+	{
+		glTexGeni(coord, GL_TEXTURE_GEN_MODE, plane == GL_EYE_PLANE ? GL_EYE_LINEAR : GL_OBJECT_LINEAR);
+		glTexGenfv(coord, plane, values.data());
+		glEnable((coord == GL_S) ? GL_TEXTURE_GEN_S :
+				 (coord == GL_T) ? GL_TEXTURE_GEN_T :
+				 (coord == GL_Q) ? GL_TEXTURE_GEN_Q : GL_TEXTURE_GEN_R);
+	}))
+	{
+		return;
+	}
+
+	glTexGeni(coord, GL_TEXTURE_GEN_MODE, eyeSpace ? GL_EYE_LINEAR : GL_OBJECT_LINEAR);
+	glTexGenfv(coord, plane, values.data());
+	glEnable((coord == GL_S) ? GL_TEXTURE_GEN_S :
+			 (coord == GL_T) ? GL_TEXTURE_GEN_T :
+			 (coord == GL_Q) ? GL_TEXTURE_GEN_Q : GL_TEXTURE_GEN_R);
+}
+void C4JRender::StateSetStencil(int function, uint8_t stencil_ref, uint8_t stencil_func_mask, uint8_t stencil_write_mask)
+{
+	if (RecordCommand([function, stencil_ref, stencil_func_mask, stencil_write_mask]()
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(function, stencil_ref, stencil_func_mask);
+		glStencilMask(stencil_write_mask);
+	}))
+	{
+		return;
+	}
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(function, stencil_ref, stencil_func_mask);
+	glStencilMask(stencil_write_mask);
+}
 void C4JRender::StateSetForceLOD(int) {}
 void C4JRender::BeginEvent(LPCWSTR) {}
 void C4JRender::EndEvent() {}
@@ -963,8 +1836,25 @@ rrbool IggyDebugGetMemoryUseInfo(Iggy *, IggyLibrary, char const *, S32, S32, Ig
 
 }
 
-void glTexGen(int, int, FloatBuffer *) {}
-void glReadPixels(int, int, int, int, int, int, ByteBuffer *) {}
+void glTexGen(int coord, int mode, FloatBuffer *values)
+{
+	if (values == nullptr || values->_getDataPointer() == nullptr)
+	{
+		return;
+	}
+
+	float *data = values->_getDataPointer();
+	RenderManager.StateSetTexGenCol(coord, data[0], data[1], data[2], data[3], mode == GL_EYE_PLANE);
+}
+void glReadPixels(int x, int y, int width, int height, int format, int type, ByteBuffer *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return;
+	}
+
+	::glReadPixels(x, y, width, height, format, type, buffer->getBuffer());
+}
 void glGenTextures(IntBuffer *ib)
 {
 	if (ib == nullptr)
@@ -974,24 +1864,134 @@ void glGenTextures(IntBuffer *ib)
 
 	for (unsigned int i = 0; i < ib->limit(); ++i)
 	{
-		ib->put(static_cast<int>(s_nextTextureId++));
+		ib->put(RenderManager.TextureCreate());
 	}
 }
-void glLight(int, int, FloatBuffer *) {}
-void glLightModel(int, FloatBuffer *) {}
-void glGetFloat(int, FloatBuffer *buffer)
+void glLight(int light, int mode, FloatBuffer *values)
 {
-	CopyIdentity(buffer);
+	if (values == nullptr || values->_getDataPointer() == nullptr)
+	{
+		return;
+	}
+
+	const int lightIndex = (light == GL_LIGHT0) ? 0 : ((light == GL_LIGHT1) ? 1 : -1);
+	if (lightIndex < 0)
+	{
+		return;
+	}
+
+	float *data = values->_getDataPointer();
+	if (mode == GL_POSITION)
+	{
+		RenderManager.StateSetLightDirection(lightIndex, data[0], data[1], data[2]);
+	}
+	else if (mode == GL_DIFFUSE)
+	{
+		RenderManager.StateSetLightColour(lightIndex, data[0], data[1], data[2]);
+	}
 }
-void glTexCoordPointer(int, int, FloatBuffer *) {}
-void glNormalPointer(int, ByteBuffer *) {}
-void glColorPointer(int, bool, int, ByteBuffer *) {}
-void glVertexPointer(int, int, FloatBuffer *) {}
-void glTexImage2D(int, int, int, int, int, int, int, int, ByteBuffer *) {}
-void glDeleteTextures(IntBuffer *) {}
-void glCallLists(IntBuffer *) {}
-void glFog(int, FloatBuffer *) {}
-void gluPerspective(float, float, float, float) {}
+void glLightModel(int mode, FloatBuffer *values)
+{
+	if (mode != GL_LIGHT_MODEL_AMBIENT || values == nullptr || values->_getDataPointer() == nullptr)
+	{
+		return;
+	}
+
+	float *data = values->_getDataPointer();
+	RenderManager.StateSetLightAmbientColour(data[0], data[1], data[2]);
+}
+void glGetFloat(int type, FloatBuffer *buffer)
+{
+	if (buffer == nullptr || buffer->_getDataPointer() == nullptr)
+	{
+		return;
+	}
+
+	memcpy(buffer->_getDataPointer(), RenderManager.MatrixGet(type), sizeof(float) * 16);
+}
+void glTexCoordPointer(int size, int stride, FloatBuffer *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return;
+	}
+
+	::glTexCoordPointer(size, GL_FLOAT, stride, buffer->_getDataPointer());
+}
+void glNormalPointer(int stride, ByteBuffer *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return;
+	}
+
+	::glNormalPointer(GL_BYTE, stride, buffer->getBuffer());
+}
+void glColorPointer(int size, bool, int stride, ByteBuffer *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return;
+	}
+
+	::glColorPointer(size, GL_UNSIGNED_BYTE, stride, buffer->getBuffer());
+}
+void glVertexPointer(int size, int stride, FloatBuffer *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return;
+	}
+
+	::glVertexPointer(size, GL_FLOAT, stride, buffer->_getDataPointer());
+}
+void glTexImage2D(int, int level, int, int width, int height, int, int, int, ByteBuffer *data)
+{
+	if (data == nullptr)
+	{
+		return;
+	}
+
+	RenderManager.TextureData(width, height, data->getBuffer(), level);
+}
+void glDeleteTextures(IntBuffer *ib)
+{
+	if (ib == nullptr)
+	{
+		return;
+	}
+
+	for (unsigned int i = 0; i < ib->limit(); ++i)
+	{
+		RenderManager.TextureFree(ib->get(i));
+	}
+}
+void glCallLists(IntBuffer *ib)
+{
+	if (ib == nullptr)
+	{
+		return;
+	}
+
+	for (unsigned int i = 0; i < ib->limit(); ++i)
+	{
+		RenderManager.CBuffCall(ib->get(i));
+	}
+}
+void glFog(int param, FloatBuffer *values)
+{
+	if (param != GL_FOG_COLOR || values == nullptr || values->_getDataPointer() == nullptr)
+	{
+		return;
+	}
+
+	float *data = values->_getDataPointer();
+	RenderManager.StateSetFogColour(data[0], data[1], data[2]);
+}
+void gluPerspective(float fovy, float aspect, float zNear, float zFar)
+{
+	RenderManager.MatrixPerspective(fovy, aspect, zNear, zFar);
+}
 
 void Display::update() {}
 void Display::swapBuffers()

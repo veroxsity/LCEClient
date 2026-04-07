@@ -170,6 +170,73 @@ inline void glDeleteTextures(int id)
 
 #endif // _LINUX64
 
+#ifdef _LINUX64
+
+// Linux uses the platform RenderManager implementation directly for the legacy
+// OpenGL-style helpers that the codebase expects. This keeps the other
+// platforms untouched while letting Linux record/replay command buffers.
+#define glTranslatef(x, y, z) RenderManager.MatrixTranslate((x), (y), (z))
+#define glRotatef(angle, x, y, z) RenderManager.MatrixRotate((angle) * (PI / 180.0f), (x), (y), (z))
+#define glPopMatrix() RenderManager.MatrixPop()
+#define glPushMatrix() RenderManager.MatrixPush()
+#define glScalef(x, y, z) RenderManager.MatrixScale((x), (y), (z))
+#define glMultMatrixf(m) RenderManager.MatrixMult((m))
+#define glMatrixMode(type) RenderManager.MatrixMode((type))
+#define glLoadIdentity() RenderManager.MatrixSetIdentity()
+#define glDeleteLists(first, count) RenderManager.CBuffDelete((first), (count))
+#define glGenLists(count) RenderManager.CBuffCreate((count))
+#define glNewList(index, mode) RenderManager.CBuffStart((index))
+#define glEndList(...) RenderManager.CBuffEnd()
+#define glCallList(index) static_cast<void>(RenderManager.CBuffCall((index)))
+#define glClear(flags) RenderManager.Clear((flags))
+#define glClearColor(r, g, b, a) do { float _rgba[4] = { (r), (g), (b), (a) }; RenderManager.SetClearColour(_rgba); } while (0)
+#define glBindTexture(target, texture) RenderManager.TextureBind((texture))
+#define glColor3f(r, g, b) RenderManager.StateSetColour((r), (g), (b), 1.0f)
+#define glColor4f(r, g, b, a) RenderManager.StateSetColour((r), (g), (b), (a))
+#define glDepthMask(enable) RenderManager.StateSetDepthMask((enable))
+#define glBlendFunc(src, dst) RenderManager.StateSetBlendFunc((src), (dst))
+#define glDepthFunc(func) RenderManager.StateSetDepthFunc((func))
+#define glTexParameteri(target, param, value) RenderManager.TextureSetParam((param), (value))
+#define glPolygonOffset(factor, units) RenderManager.StateSetDepthSlopeAndBias((factor) / 65536.0f, (units) / 65536.0f)
+#define glLineWidth(width) RenderManager.StateSetLineWidth((width))
+#define glColorMask(red, green, blue, alpha) RenderManager.StateSetWriteEnable((red), (green), (blue), (alpha))
+#define glScaled(x, y, z) RenderManager.MatrixScale(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z))
+#define glAlphaFunc(func, param) RenderManager.StateSetAlphaFunc((func), (param))
+#define glOrtho(left, right, bottom, top, zNear, zFar) RenderManager.MatrixOrthogonal((left), (right), (bottom), (top), (zNear), (zFar))
+#define glFogi(param, value) do { if ((param) == GL_FOG_MODE) RenderManager.StateSetFogMode((value)); } while (0)
+#define glFogf(param, value) do { \
+	if ((param) == GL_FOG_START) RenderManager.StateSetFogNearDistance((value)); \
+	else if ((param) == GL_FOG_END) RenderManager.StateSetFogFarDistance((value)); \
+	else if ((param) == GL_FOG_DENSITY) RenderManager.StateSetFogDensity((value)); \
+} while (0)
+#define glCullFace(dir) RenderManager.StateSetFaceCullCW((dir) == GL_BACK)
+#define glMultiTexCoord2f(unit, u, v) RenderManager.StateSetVertexTextureUV((u) / 256.0f, (v) / 256.0f)
+
+#define glDisable(state) do { \
+	if ((state) == GL_TEXTURE_2D) RenderManager.TextureBind(-1); \
+	else if ((state) == GL_BLEND) RenderManager.StateSetBlendEnable(false); \
+	else if ((state) == GL_CULL_FACE) RenderManager.StateSetFaceCull(false); \
+	else if ((state) == GL_DEPTH_TEST) RenderManager.StateSetDepthTestEnable(false); \
+	else if ((state) == GL_ALPHA_TEST) RenderManager.StateSetAlphaTestEnable(false); \
+	else if ((state) == GL_FOG) RenderManager.StateSetFogEnable(false); \
+	else if ((state) == GL_LIGHTING) RenderManager.StateSetLightingEnable(false); \
+	else if ((state) == GL_LIGHT0) RenderManager.StateSetLightEnable(0, false); \
+	else if ((state) == GL_LIGHT1) RenderManager.StateSetLightEnable(1, false); \
+} while (0)
+
+#define glEnable(state) do { \
+	if ((state) == GL_BLEND) RenderManager.StateSetBlendEnable(true); \
+	else if ((state) == GL_CULL_FACE) RenderManager.StateSetFaceCull(true); \
+	else if ((state) == GL_DEPTH_TEST) RenderManager.StateSetDepthTestEnable(true); \
+	else if ((state) == GL_ALPHA_TEST) RenderManager.StateSetAlphaTestEnable(true); \
+	else if ((state) == GL_FOG) RenderManager.StateSetFogEnable(true); \
+	else if ((state) == GL_LIGHTING) RenderManager.StateSetLightingEnable(true); \
+	else if ((state) == GL_LIGHT0) RenderManager.StateSetLightEnable(0, true); \
+	else if ((state) == GL_LIGHT1) RenderManager.StateSetLightEnable(1, true); \
+} while (0)
+
+#endif // _LINUX64
+
 #ifndef _LINUX64
 
 class GL11

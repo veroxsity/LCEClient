@@ -45,6 +45,7 @@ static bool g_bResizeReady = false;
 
 char    g_Win64Username[17]  = {};
 wchar_t g_Win64UsernameW[17] = {};
+extern SDL_Window* g_pSDLWindow;
 
 // Profile data arrays expected by InitialiseMinecraftRuntime
 #define NUM_PROFILE_VALUES   5
@@ -100,7 +101,7 @@ static bool InitWindow() {
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,8);
@@ -110,6 +111,7 @@ static bool InitWindow() {
         SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,g_rScreenWidth,g_rScreenHeight,
         SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_SHOWN);
     if (!g_pWindow) { fprintf(stderr,"[Linux64] SDL_CreateWindow: %s\n",SDL_GetError()); return false; }
+    g_pSDLWindow = g_pWindow;
     g_GLContext=SDL_GL_CreateContext(g_pWindow);
     if (!g_GLContext) { fprintf(stderr,"[Linux64] GL context: %s\n",SDL_GetError()); return false; }
     SDL_GL_MakeCurrent(g_pWindow,g_GLContext);
@@ -204,6 +206,7 @@ int main(int argc, char* argv[]) {
     }
     LoadUsername();
     if (!InitWindow()) return 1;
+    RenderManager.Initialise(nullptr, nullptr);
     if (LoadFullscreenOption()&&!g_isFullscreen) ToggleFullscreen();
 
     Minecraft* pMinecraft=InitialiseMinecraftRuntime();
@@ -243,6 +246,7 @@ int main(int argc, char* argv[]) {
 
         if (SDL_GetWindowFlags(g_pWindow)&SDL_WINDOW_MINIMIZED) { SDL_Delay(100); continue; }
 
+        RenderManager.StartFrame();
         g_KBMInput.Tick();
         app.UpdateTime();
         InputManager.Tick();
@@ -266,8 +270,10 @@ int main(int argc, char* argv[]) {
         }
         pMinecraft->soundEngine->playMusicTick();
 
-        // Phase 3: ui.tick(); ui.render(); RenderManager.Present();
-        SDL_GL_SwapWindow(g_pWindow); // placeholder
+        ui.tick();
+        ui.render();
+        pMinecraft->gameRenderer->ApplyGammaPostProcess();
+        RenderManager.Present();
 
         // Mouse grab
         const bool shouldCapture=app.GetGameStarted()&&!ui.GetMenuDisplayed(0)&&pMinecraft->screen==nullptr;
