@@ -34,6 +34,46 @@ extern SDL_Window *g_pWindow;
 extern char g_Win64Username[17];
 extern wchar_t g_Win64UsernameW[17];
 
+#ifdef _LINUX64
+// stubs.h remaps legacy GL entry points through RenderManager for the rest of
+// the codebase. This implementation file is the RenderManager backend, so it
+// must call the real GL functions directly to avoid recursive self-dispatch.
+#undef glTranslatef
+#undef glRotatef
+#undef glPopMatrix
+#undef glPushMatrix
+#undef glScalef
+#undef glMultMatrixf
+#undef glMatrixMode
+#undef glLoadIdentity
+#undef glDeleteLists
+#undef glGenLists
+#undef glNewList
+#undef glEndList
+#undef glCallList
+#undef glClear
+#undef glClearColor
+#undef glBindTexture
+#undef glColor3f
+#undef glColor4f
+#undef glDepthMask
+#undef glBlendFunc
+#undef glDepthFunc
+#undef glTexParameteri
+#undef glPolygonOffset
+#undef glLineWidth
+#undef glColorMask
+#undef glScaled
+#undef glAlphaFunc
+#undef glOrtho
+#undef glFogi
+#undef glFogf
+#undef glCullFace
+#undef glMultiTexCoord2f
+#undef glDisable
+#undef glEnable
+#endif
+
 namespace
 {
 int s_nextTextureId = 1;
