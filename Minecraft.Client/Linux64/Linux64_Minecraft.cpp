@@ -148,6 +148,7 @@ void DefineActions();
 static Minecraft* InitialiseMinecraftRuntime() {
     app.loadMediaArchive();
     app.loadStringTable();
+    ui.init(g_rScreenWidth, g_rScreenHeight);
 
     InputManager.Initialise(1,3,MINECRAFT_ACTION_MAX,ACTION_MAX_MENU);
     g_KBMInput.Init();
