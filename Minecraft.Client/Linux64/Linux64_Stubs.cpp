@@ -320,7 +320,7 @@ void ExecuteDrawVertices(C4JRender::ePrimitiveType primitiveType, int count, voi
 		{
 			glClientActiveTexture(GL_TEXTURE1);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glMultiTexCoord2f(GL_TEXTURE1, s_globalVertexTexU, s_globalVertexTexV);
+			__glewMultiTexCoord2f(GL_TEXTURE1, s_globalVertexTexU, s_globalVertexTexV);
 		}
 		else
 		{
