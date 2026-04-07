@@ -61,6 +61,7 @@ public:
 	const int64_t createTime;
 
 	Packet();
+	virtual ~Packet() = default;
 
 	static shared_ptr<Packet> getPacket(int id);
 
