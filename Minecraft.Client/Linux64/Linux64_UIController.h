@@ -16,6 +16,8 @@ public:
 
 protected:
     void setTileOrigin(S32 xPos, S32 yPos) override;
+    GDrawTexture *getSubstitutionTexture(int textureId) override;
+    void destroySubstitutionTexture(void *destroyCallBackData, GDrawTexture *handle) override;
 };
 
 extern ConsoleUIController ui;

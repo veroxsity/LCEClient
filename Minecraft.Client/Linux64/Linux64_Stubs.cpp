@@ -853,6 +853,34 @@ HRESULT C4JRender::SaveTextureData(const char *, D3DXIMAGE_INFO *, int *) { retu
 HRESULT C4JRender::SaveTextureDataToMemory(void *, int, int *, int, int, int *) { return E_FAIL; }
 void C4JRender::TextureGetStats() {}
 ID3D11ShaderResourceView *C4JRender::TextureGetTexture(int) { return nullptr; }
+#ifdef _LINUX64
+unsigned int C4JRender::TextureGetHandle(int idx, int *width, int *height)
+{
+	TextureEntry *entry = FindTextureEntry(idx);
+	if (entry == nullptr)
+	{
+		if (width != nullptr)
+		{
+			*width = 0;
+		}
+		if (height != nullptr)
+		{
+			*height = 0;
+		}
+		return 0;
+	}
+
+	if (width != nullptr)
+	{
+		*width = entry->width;
+	}
+	if (height != nullptr)
+	{
+		*height = entry->height;
+	}
+	return entry->handle;
+}
+#endif
 void C4JRender::StateSetColour(float r, float g, float b, float a)
 {
 	if (RecordCommand([r, g, b, a]() { glColor4f(r, g, b, a); }))

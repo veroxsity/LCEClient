@@ -302,6 +302,7 @@ int main(int argc, char* argv[]) {
     }
 
     WinsockNetLayer::Shutdown();
+    ui.shutdown();
     SDL_GL_DeleteContext(g_GLContext);
     SDL_DestroyWindow(g_pWindow);
     SDL_Quit();

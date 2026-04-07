@@ -6,6 +6,7 @@ set(_MINECRAFT_CLIENT_LINUX64_PLATFORM
   "${BASE_DIR}/Linux64_App.cpp"
   "${BASE_DIR}/Linux64_UIController.h"
   "${BASE_DIR}/Linux64_UIController.cpp"
+  "${BASE_DIR}/Linux64_IggyGL.cpp"
   "${BASE_DIR}/Linux64_Stubs.cpp"
   "${BASE_DIR}/Linux64_TextureLoader.cpp"
   "${BASE_DIR}/KeyboardMouseInput.h"

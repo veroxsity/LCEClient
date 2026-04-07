@@ -159,6 +159,9 @@ public:
 	HRESULT SaveTextureDataToMemory(void *pOutput, int outputCapacity, int *outputLength, int width, int height, int *ppDataIn);
 	void TextureGetStats();
 	ID3D11ShaderResourceView  *TextureGetTexture(int idx);
+#ifdef _LINUX64
+	unsigned int TextureGetHandle(int idx, int *width = nullptr, int *height = nullptr);
+#endif
 
 	// State control
 	void StateSetColour(float r, float g, float b, float a);
