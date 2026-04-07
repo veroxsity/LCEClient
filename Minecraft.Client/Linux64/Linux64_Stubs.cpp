@@ -453,7 +453,7 @@ void C4JRender::MatrixMult(float *mat)
 
 	std::array<float, 16> copy = {};
 	memcpy(copy.data(), mat, sizeof(copy));
-	if (RecordCommand([copy]() { glMultMatrixf(copy.data()); s_matrixDirty = true; }))
+	if (RecordCommand([copy]() mutable { glMultMatrixf(copy.data()); s_matrixDirty = true; }))
 	{
 		return;
 	}
@@ -833,12 +833,29 @@ void C4JRender::StateSetDepthMask(bool enable)
 }
 void C4JRender::StateSetBlendEnable(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_BLEND);
+		}
+		else
+		{
+			glDisable(GL_BLEND);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+	if (enable)
+	{
+		glEnable(GL_BLEND);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
 }
 void C4JRender::StateSetBlendFunc(int src, int dst)
 {
@@ -882,12 +899,29 @@ void C4JRender::StateSetDepthFunc(int func)
 }
 void C4JRender::StateSetFaceCull(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+	if (enable)
+	{
+		glEnable(GL_CULL_FACE);
+	}
+	else
+	{
+		glDisable(GL_CULL_FACE);
+	}
 }
 void C4JRender::StateSetFaceCullCW(bool enable)
 {
@@ -919,21 +953,55 @@ void C4JRender::StateSetWriteEnable(bool red, bool green, bool blue, bool alpha)
 }
 void C4JRender::StateSetDepthTestEnable(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_DEPTH_TEST);
+		}
+		else
+		{
+			glDisable(GL_DEPTH_TEST);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+	if (enable)
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
 }
 void C4JRender::StateSetAlphaTestEnable(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_ALPHA_TEST) : glDisable(GL_ALPHA_TEST); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_ALPHA_TEST);
+		}
+		else
+		{
+			glDisable(GL_ALPHA_TEST);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_ALPHA_TEST) : glDisable(GL_ALPHA_TEST);
+	if (enable)
+	{
+		glEnable(GL_ALPHA_TEST);
+	}
+	else
+	{
+		glDisable(GL_ALPHA_TEST);
+	}
 }
 void C4JRender::StateSetDepthSlopeAndBias(float slope, float bias)
 {
@@ -965,12 +1033,29 @@ void C4JRender::StateSetDepthSlopeAndBias(float slope, float bias)
 }
 void C4JRender::StateSetFogEnable(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_FOG) : glDisable(GL_FOG); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_FOG);
+		}
+		else
+		{
+			glDisable(GL_FOG);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_FOG) : glDisable(GL_FOG);
+	if (enable)
+	{
+		glEnable(GL_FOG);
+	}
+	else
+	{
+		glDisable(GL_FOG);
+	}
 }
 void C4JRender::StateSetFogMode(int mode)
 {
@@ -1020,12 +1105,29 @@ void C4JRender::StateSetFogColour(float red, float green, float blue)
 }
 void C4JRender::StateSetLightingEnable(bool enable)
 {
-	if (RecordCommand([enable]() { enable ? glEnable(GL_LIGHTING) : glDisable(GL_LIGHTING); }))
+	if (RecordCommand([enable]()
+	{
+		if (enable)
+		{
+			glEnable(GL_LIGHTING);
+		}
+		else
+		{
+			glDisable(GL_LIGHTING);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(GL_LIGHTING) : glDisable(GL_LIGHTING);
+	if (enable)
+	{
+		glEnable(GL_LIGHTING);
+	}
+	else
+	{
+		glDisable(GL_LIGHTING);
+	}
 }
 void C4JRender::StateSetVertexTextureUV(float u, float v)
 {
@@ -1067,12 +1169,29 @@ void C4JRender::StateSetLightDirection(int light, float x, float y, float z)
 void C4JRender::StateSetLightEnable(int light, bool enable)
 {
 	const GLenum glLightId = (light == 0) ? GL_LIGHT0 : GL_LIGHT1;
-	if (RecordCommand([glLightId, enable]() { enable ? glEnable(glLightId) : glDisable(glLightId); }))
+	if (RecordCommand([glLightId, enable]()
+	{
+		if (enable)
+		{
+			glEnable(glLightId);
+		}
+		else
+		{
+			glDisable(glLightId);
+		}
+	}))
 	{
 		return;
 	}
 
-	enable ? glEnable(glLightId) : glDisable(glLightId);
+	if (enable)
+	{
+		glEnable(glLightId);
+	}
+	else
+	{
+		glDisable(glLightId);
+	}
 }
 void C4JRender::StateSetViewport(C4JRender::eViewportType viewportType)
 {
